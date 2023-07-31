@@ -13,6 +13,7 @@ export class Game {
     });
     document.body.appendChild(this.app.view);
     this.music = true;
+    this.sfx_music=true;
     this.processBar();
     this.loadGame().then(() => {
       this.app.stage.removeChild(this.loaderBar);
@@ -47,6 +48,13 @@ export class Game {
   }
   static loading(ratio){
       this.loaderBarFill.scale.x = ratio;
+  }
+  static play(){
+    this.app.stage.removeChild(this.SceneManager.stUI);
+    this.startGame();
+  }
+  static startGame(){
+    
   }
 }
 
