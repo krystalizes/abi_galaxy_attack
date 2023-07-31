@@ -3,4 +3,6 @@ const screenWidth = innerWidth;
 export const GameConstants = {
     //Screen
     screenWidth : screenWidth,
-    screenHeight : screenHeight,}
+    screenHeight : screenHeight,
+    // squareEdge : squareEdge,
+}

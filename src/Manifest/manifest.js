@@ -31,6 +31,12 @@ export const manifest = {
             }
         },
         {
+            name : "title",
+            assets : {
+                title : "assets/atlases/jpg/title.png",
+            }
+        },
+        {
             name : "booster_levelup",
             assets : {
                 booster_levelup : "assets/atlases/png8/booster_levelup.png",
