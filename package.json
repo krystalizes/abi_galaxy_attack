@@ -28,6 +28,6 @@
     "clean-webpack-plugin": "^4.0.0",
     "esbuild-loader": "^2.20.0",
     "gsap": "^3.12.2",
-    "pixi.js": "^7.0.4"
+    "pixi.js": "^7.2.4"
   }
 }

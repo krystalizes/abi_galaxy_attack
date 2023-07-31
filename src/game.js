@@ -1,8 +1,8 @@
 import { Application, Sprite, Text, Texture, TilingSprite, Assets, Graphics, Container} from "pixi.js";
-import { Sound } from "@pixi/sound";
+import { sound } from "@pixi/sound";
 import { manifest } from "./Manifest/manifest";
 import {SceneManager} from './Scene/SceneManager'
-import { GameConstants } from "./GameConstants/Gameconstants";
+import { GameConstants } from "./GameConstants/GameConstants";
 
 export class Game {
   static init() {
@@ -12,9 +12,14 @@ export class Game {
       backgroundColor: 0x111111,
     });
     document.body.appendChild(this.app.view);
+    this.music = true;
     this.processBar();
     this.loadGame().then(() => {
       this.app.stage.removeChild(this.loaderBar);
+      sound.play("music_bg",{
+        volume: 1,
+        loop: true
+      });
       this.SceneManager = new SceneManager();
       this.app.stage.addChild(this.SceneManager.stUI);
     }); 
@@ -39,10 +44,8 @@ export class Game {
     await Assets.init({manifest: manifest});
     const bundleIDs = manifest.bundles.map(bundle => bundle.name);
     await Assets.loadBundle(bundleIDs, this.loading.bind(this));
-    console.log(Assets.cache);
   }
   static loading(ratio){
-      console.log(ratio);
       this.loaderBarFill.scale.x = ratio;
   }
 }

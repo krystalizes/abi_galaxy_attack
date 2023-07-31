@@ -1,9 +1,10 @@
 import { Container, Text, TextStyle, Texture,TilingSprite } from "pixi.js";
 import { Sprite } from "pixi.js";
 import { gsap } from "gsap";
-import { GameConstants } from "../GameConstants/Gameconstants";
+import { GameConstants } from "../GameConstants/GameConstants";
 import { Game } from "../game";
 import { sound } from "@pixi/sound";
+import { MusicButton } from "./MusicButton";
 export class StartUI extends Container{
     constructor(){
         super();
@@ -42,6 +43,7 @@ export class StartUI extends Container{
 
     }
     drawMusicbutton(){
-
+        this.musicButton = new MusicButton(GameConstants.screenWidth*0.97, GameConstants.screenHeight*0.05);
+        this.addChild(this.musicButton);
     }
 }

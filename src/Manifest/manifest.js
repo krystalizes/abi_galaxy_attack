@@ -37,6 +37,12 @@ export const manifest = {
             }
         },
         {
+            name : "ic_music",
+            assets : {
+                ic_music : "assets/atlases/jpg/ic_music.png",
+            }
+        },
+        {
             name : "booster_levelup",
             assets : {
                 booster_levelup : "assets/atlases/png8/booster_levelup.png",
