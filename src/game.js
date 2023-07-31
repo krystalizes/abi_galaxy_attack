@@ -1,0 +1,52 @@
+import { Application, Sprite, Text, Texture, TilingSprite, Assets, Graphics, Container} from "pixi.js";
+import { Sound } from "@pixi/sound";
+import { manifest } from "./Manifest/manifest";
+import {SceneManager} from './Scene/SceneManager'
+import { GameConstants } from "./GameConstants/Gameconstants";
+
+export class Game {
+  static init() {
+    this.app = new Application({
+      width: GameConstants.screenWidth,
+      height: GameConstants.screenHeight,
+      backgroundColor: 0x111111,
+    });
+    document.body.appendChild(this.app.view);
+    this.processBar();
+    this.loadGame().then(() => {
+      this.app.stage.removeChild(this.loaderBar);
+      this.SceneManager = new SceneManager();
+      this.app.stage.addChild(this.SceneManager.stUI);
+    }); 
+  }
+  static processBar(){
+    this.loaderBarFill = new Graphics();
+    this.loaderBarFill.beginFill(0x008800, 1)
+    this.loaderBarFill.drawRect(0, 0, 100, 50);
+    this.loaderBarFill.endFill();
+    this.loaderBarFill.scale.x = 0; 
+    this.loaderBarBoder = new Graphics();
+    this.loaderBarBoder.lineStyle(10, 0x0, 1);
+    this.loaderBarBoder.drawRect(0, 0, 100, 50);
+    this.loaderBar = new Container();
+    this.loaderBar.addChild(this.loaderBarFill);
+    this.loaderBar.addChild(this.loaderBarBoder);
+    this.loaderBar.position.x = (GameConstants.screenWidth - this.loaderBar.width) / 2; 
+    this.loaderBar.position.y = (GameConstants.screenHeight - this.loaderBar.height) / 2;
+    this.app.stage.addChild(this.loaderBar);
+  }
+  static async loadGame(){
+    await Assets.init({manifest: manifest});
+    const bundleIDs = manifest.bundles.map(bundle => bundle.name);
+    await Assets.loadBundle(bundleIDs, this.loading.bind(this));
+    console.log(Assets.cache);
+  }
+  static loading(ratio){
+      console.log(ratio);
+      this.loaderBarFill.scale.x = ratio;
+  }
+}
+
+window.onload = function () {
+  Game.init();
+};
