@@ -61,6 +61,7 @@ export class Game {
     this.startGame();
   }
   static startGame(){
+    this.app.stage.addChild(this.SceneManager.igUI);
     
   }
 }

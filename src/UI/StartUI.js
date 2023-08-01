@@ -8,21 +8,11 @@ import { MusicButton, SFXButton } from "./MusicButton";
 export class StartUI extends Container{
     constructor(){
         super();
-        // this.drawBackground();
         this.drawTitle();
         this.drawPlayButton();
         this.drawMusicButton();
         this.drawSFXMusicButton();
     }
-    // drawBackground(){
-    //     // var background= Texture.from('bg');
-    //     // const tilingSprite = new TilingSprite(background, GameConstants.screenWidth, GameConstants.screenWidth);
-    //     // tilingSprite.tileScale.set(3, 3);
-    //     // this.addChild(tilingSprite);
-    //     // Game.app.ticker.add(() => {
-    //     //   tilingSprite.tilePosition.y += 1;
-    //     // });
-    // }
     drawTitle(){
         var title= Sprite.from(Texture.from("title"));
         title.anchor.set(0.5, 0.5);
