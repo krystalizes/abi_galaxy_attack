@@ -17,6 +17,13 @@ export class Game {
     this.processBar();
     this.loadGame().then(() => {
       this.app.stage.removeChild(this.loaderBar);
+      var background= Texture.from('bg');
+      const tilingSprite = new TilingSprite(background, GameConstants.screenWidth, GameConstants.screenWidth);
+      tilingSprite.tileScale.set(3, 3);
+      this.app.stage.addChild(tilingSprite);
+      Game.app.ticker.add(() => {
+        tilingSprite.tilePosition.y += 1;
+      });
       sound.play("music_bg",{
         volume: 1,
         loop: true

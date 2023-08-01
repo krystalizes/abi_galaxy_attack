@@ -8,21 +8,21 @@ import { MusicButton, SFXButton } from "./MusicButton";
 export class StartUI extends Container{
     constructor(){
         super();
-        this.drawBackground();
+        // this.drawBackground();
         this.drawTitle();
         this.drawPlayButton();
         this.drawMusicButton();
         this.drawSFXMusicButton();
     }
-    drawBackground(){
-        var background= Texture.from('bg');
-        const tilingSprite = new TilingSprite(background, GameConstants.screenWidth, GameConstants.screenWidth);
-        tilingSprite.tileScale.set(3, 3);
-        this.addChild(tilingSprite);
-        Game.app.ticker.add(() => {
-          tilingSprite.tilePosition.y += 1;
-        });
-    }
+    // drawBackground(){
+    //     // var background= Texture.from('bg');
+    //     // const tilingSprite = new TilingSprite(background, GameConstants.screenWidth, GameConstants.screenWidth);
+    //     // tilingSprite.tileScale.set(3, 3);
+    //     // this.addChild(tilingSprite);
+    //     // Game.app.ticker.add(() => {
+    //     //   tilingSprite.tilePosition.y += 1;
+    //     // });
+    // }
     drawTitle(){
         var title= Sprite.from(Texture.from("title"));
         title.anchor.set(0.5, 0.5);
@@ -38,7 +38,7 @@ export class StartUI extends Container{
             repeat:-1,
             repeatDelay:0,
             ease: "power1.inOut",
-        })
+        });
     }
     drawPlayButton(){
         var playButton = Sprite.from(Texture.from("ic_play"));
@@ -55,11 +55,11 @@ export class StartUI extends Container{
             Game.play();
         });
         playButton.on("pointerover", () => {
-            playButton.scale.set(0.5); // Enlarge the button
+            playButton.scale.set(0.5); 
         });
       
         playButton.on("pointerout", () => {
-            playButton.scale.set(0.4); // Reset the scale back to the original
+            playButton.scale.set(0.4); 
         });
         this.addChild(playButton);
     }
