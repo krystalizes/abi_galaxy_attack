@@ -1,4 +1,4 @@
-import { Container, Text, TextStyle, Texture,Ticker,TilingSprite } from "pixi.js";
+import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite } from "pixi.js";
 import { Sprite } from "pixi.js";
 import { gsap } from "gsap";
 import { GameConstants } from "../GameConstants/GameConstants";
@@ -9,30 +9,61 @@ export class InGameUI extends Container{
     constructor(){
         super();
         this.tutorial = new Container();
+        this.player = new Container();
         this.addChild(this.tutorial);
+        this.addChild(this.player);
         this.drawPlayerShip();  
         this.loopcircle();
+        this.clickCount=0;
         this.tutorial.addChild(this.drawtext());
-        // this.tutorial.addChild(this.drawcircle());
         this.tutorial.addChild(this.drawhand());
-        
+        Game.app.stage.on("click", this.onStageClick.bind(this));
     } 
     drawPlayerShip(){
-        var playership= Sprite.from(Texture.from("ship_blue_base"));
-        playership.anchor.set(0.5, 0.5);
-        playership.scale.set(0.5);
-        playership.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
-        playership.eventMode="dynamic";
-        this.addChild(playership);
-        var smokeblue= Sprite.from(Texture.from("smoke_blue"));
-        smokeblue.anchor.set(0.5, 0.5);
-        smokeblue.scale.set(0.5);
-        smokeblue.position.set(GameConstants.screenWidth*0.5, playership.y+61);
-        smokeblue.eventMode="dynamic";
-        this.addChild(smokeblue);
+        this.playership= Sprite.from(Texture.from("ship_blue_base"));
+        this.playership.anchor.set(0.5, 0.5);
+        this.playership.scale.set(0.5);
+        this.playership.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
+        this.player.addChild(this.playership);
+        this.smokeblue= Sprite.from(Texture.from("smoke_blue"));
+        this.smokeblue.anchor.set(0.5, 0.5);
+        this.smokeblue.scale.set(0.5);
+        this.smokeblue.position.set(this.playership.x, this.playership.y+61);
+        this.player.addChild(this.smokeblue);
         Ticker.shared.add(()=>{
-            smokeblue.visible = !smokeblue.visible;
+            this.smokeblue.visible = !this.smokeblue.visible;
         },500);
+        this.basewing=new Container();
+        this.left= Sprite.from(Texture.from("spr_wing_ship_left"));
+        this.left.anchor.set(1,0);
+        this.left.scale.set(0.5);
+        this.left.position.set(this.playership.x, this.playership.y+5);
+        this.basewing.addChild(this.left);
+        gsap.to(this.left
+        ,{
+            rotation:-Math.PI/18,
+            duration:0.4,
+            yoyo:true,
+            repeat:-1,
+            repeatDelay:0,
+            ease: "sine.inOut",
+        });
+        this.right= Sprite.from(Texture.from("spr_wing_ship_left"));
+        this.right.anchor.set(1,0);
+        this.right.scale.set(-0.5,0.5);
+        this.right.position.set(this.playership.x, this.playership.y+5);
+        this.basewing.addChild(this.right);
+        gsap.to(this.right
+            ,{
+                rotation:Math.PI/18,
+                duration:0.4,
+                yoyo:true,
+                repeat:-1,
+                repeatDelay:0,
+                ease: "sine.inOut",
+            });
+        this.player.addChild(this.basewing);
+        this.player.setChildIndex(this.basewing,0);
     }
     drawtext(){
         const container = new Container(); 
@@ -45,7 +76,8 @@ export class InGameUI extends Container{
     }
     loopcircle() {
         setInterval(() => {
-            this.tutorial.addChild(this.drawcircle());
+            const circleContainer = this.drawcircle();
+            this.tutorial.addChildAt(circleContainer, 0);
         }, 600);
     }
     drawcircle(){
@@ -87,4 +119,11 @@ export class InGameUI extends Container{
         });
         return container;
     }
+    onStageClick() {
+        this.clickCount++;
+        if (Game.playbutton_clicked&&this.tutorial.parent&&this.clickCount==2) {
+            this.removeChild(this.tutorial);
+        }
+    }
+
 }

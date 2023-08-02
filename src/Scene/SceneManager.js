@@ -1,6 +1,5 @@
 import { Game } from "../game";
 import { InGameUI } from "../UI/InGameUI";
-
 import { StartUI } from "../UI/StartUI";
 
 export class SceneManager{

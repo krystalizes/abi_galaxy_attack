@@ -14,6 +14,9 @@ export class Game {
     document.body.appendChild(this.app.view);
     this.music = true;
     this.sfx_music=true;
+    this.gamestart=false;
+    this.playbutton_clicked=false;
+    this.app.stage.eventMode="static";
     this.processBar();
     this.loadGame().then(() => {
       this.app.stage.removeChild(this.loaderBar);
@@ -57,6 +60,7 @@ export class Game {
       this.loaderBarFill.scale.x = ratio;
   }
   static play(){
+    this.playbutton_clicked=true;
     this.app.stage.removeChild(this.SceneManager.stUI);
     this.startGame();
   }
