@@ -1,4 +1,4 @@
-import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite } from "pixi.js";
+import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite,Graphics } from "pixi.js";
 import { Sprite } from "pixi.js";
 import { gsap } from "gsap";
 import { GameConstants } from "../GameConstants/GameConstants";
@@ -88,10 +88,6 @@ export class InGameUI extends Container{
         circle.scale.set(scale);
         circle.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
         container.addChild(circle);
-        //only create 1 circle at a time
-        // gsap.to(circle.scale, {
-        //     x:0.1,y:0.1, duration: 1, repeat: -1, 
-        // });
         Ticker.shared.add(()=>{
             if(scale>0){
                 scale-=0.007;
@@ -119,11 +115,30 @@ export class InGameUI extends Container{
         });
         return container;
     }
-    onStageClick() {
+    onStageClick(e) {
         this.clickCount++;
+        const oldX = e.data.global.x;
+        const oldY = e.data.global.y;
+        const playerX = this.player.x;
+        const playerY = this.player.y;
+        console.log(playerX,playerY);
+        const dx = oldX - playerX;
+        const dy = oldY - playerY; 
         if (Game.playbutton_clicked&&this.tutorial.parent&&this.clickCount==2) {
             this.removeChild(this.tutorial);
+            Game.app.stage.on("mousemove", (e) => {
+                const newX = e.data.global.x;
+                const newY = e.data.global.y; 
+                const moveX=newX-dx;
+                const moveY=newY-dy;
+                
+                if (moveX<playerX+GameConstants.screenWidth){
+                    
+                }
+                this.player.x = moveX;
+                console.log(moveX,moveY);
+                this.player.y = moveY;
+              });
         }
     }
-
 }
