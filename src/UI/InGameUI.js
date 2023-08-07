@@ -119,21 +119,33 @@ export class InGameUI extends Container{
         this.clickCount++;
         const oldX = e.data.global.x;
         const oldY = e.data.global.y;
-        const playerX = this.player.x;
-        const playerY = this.player.y;
-        console.log(playerX,playerY);
-        const dx = oldX - playerX;
-        const dy = oldY - playerY; 
+        var playerX = this.player.x;
+        var playerY = this.player.y;
+        var dx = oldX - playerX;
+        var dy = oldY - playerY; 
         if (Game.playbutton_clicked&&this.tutorial.parent&&this.clickCount==2) {
             this.removeChild(this.tutorial);
             Game.app.stage.on("mousemove", (e) => {
-                const newX = e.data.global.x;
-                const newY = e.data.global.y; 
-                const moveX=newX-dx;
-                const moveY=newY-dy;
+                var newX = e.data.global.x;
+                var newY = e.data.global.y; 
+                var moveX=newX-dx;
+                var moveY=newY-dy;
                 
-                if (moveX<playerX+GameConstants.screenWidth){
-                    
+                if (moveX<=-(GameConstants.screenWidth/2-this.playership.width/2)){
+                    dx=newX-this.player.x;
+                    moveX=-GameConstants.screenWidth/2+this.playership.width/2;                  
+                }
+                if (moveX>=GameConstants.screenWidth/2-this.playership.width/2){
+                    dx=newX-this.player.x;
+                    moveX=GameConstants.screenWidth/2-this.playership.width/2;                  
+                }
+                if (moveY<=-(GameConstants.screenHeight*0.8-this.playership.height/2)){
+                    dy=newY-this.player.y;
+                    moveY=-GameConstants.screenHeight*0.8+this.playership.height/2;                  
+                }
+                if (moveY>=GameConstants.screenHeight*0.2-this.playership.height/2){
+                    dy=newY-this.player.y;
+                    moveY=GameConstants.screenHeight*0.2-this.playership.height/2;                  
                 }
                 this.player.x = moveX;
                 console.log(moveX,moveY);
