@@ -147,9 +147,14 @@ export class InGameUI extends Container{
                     dy=newY-this.player.y;
                     moveY=GameConstants.screenHeight*0.2-this.playership.height/2;                  
                 }
-                this.player.x = moveX;
-                console.log(moveX,moveY);
-                this.player.y = moveY;
+                gsap.to(this.player, {
+                    x: moveX,
+                    y: moveY,
+                    duration: 0.3, // Adjust the duration as needed
+                });
+                // this.player.x = moveX;
+                // console.log(moveX,moveY);
+                // this.player.y = moveY;
               });
         }
     }
