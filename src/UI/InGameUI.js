@@ -14,10 +14,12 @@ export class InGameUI extends Container{
         this.player = new Container();
         this.playerbase = new Container();
         this.playerupgrade = new Container();
+        this.creeps=[];
         this.addChild(this.tutorial);
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
         this.player.addChild(this.playerupgrade);
+        
         //test
         this.playerupgrade.visible=false;
         this.playerbase.visible=true;
@@ -26,6 +28,11 @@ export class InGameUI extends Container{
 
         this.drawPlayerShip();  
         // test
+        this.drawCreep(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.5);
+        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.5);
+        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.5);
+        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.5);
+        this.drawCreep(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.5);
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
                 this.checkCollision();
@@ -249,6 +256,75 @@ export class InGameUI extends Container{
                     duration: 0.2,
                 });
               });
+        }
+    }
+    drawCreep(x,y){
+        const creepContainer = new Container();
+        this.addChild(creepContainer);
+        const creepMain= Sprite.from(Texture.from("spr_robot_noel_main"));
+        creepMain.anchor.set(0.5, 0.5);
+        creepMain.scale.set(0.5);
+        creepMain.position.set(x, y);
+        creepContainer.addChild(creepMain);
+        const creepHead= Sprite.from(Texture.from("spr_robot_noel_3"));
+        creepHead.anchor.set(0.5, 0.5);
+        creepHead.scale.set(0.5);
+        creepHead.position.set(x, y-15);
+        creepContainer.addChild(creepHead);
+        const creepwing=new Container();
+        const creepwingleft= Sprite.from(Texture.from("spr_wing_robot_noel_3_left"));
+        creepwingleft.anchor.set(1,1);
+        creepwingleft.scale.set(0.5);
+        creepwingleft.position.set(creepHead.x-10, creepHead.y-10);
+        creepwing.addChild(creepwingleft);
+        gsap.to(creepwingleft
+        ,{
+            rotation:-Math.PI/18,
+            duration:0.4,
+            yoyo:true,
+            repeat:-1,
+            repeatDelay:0,
+            ease: "sine.inOut",
+        });
+        const creepwingright= Sprite.from(Texture.from("spr_wing_robot_noel_3_left"));
+        creepwingright.anchor.set(1,1);
+        creepwingright.scale.set(-0.5,0.5);
+        creepwingright.position.set(creepHead.x+10, creepHead.y-10);
+        creepwing.addChild(creepwingright);
+        gsap.to(creepwingright
+            ,{
+                rotation:Math.PI/18,
+                duration:0.4,
+                yoyo:true,
+                repeat:-1,
+                repeatDelay:0,
+                ease: "sine.inOut",
+            });
+        creepContainer.addChild(creepwing);
+        creepContainer.setChildIndex(creepwing,0);
+        this.creeps.push(creepContainer);
+        const containerIndex = this.creeps.indexOf(creepContainer);
+        if(containerIndex%2==0){
+            gsap.to(creepContainer
+                ,{
+                    y: -GameConstants.screenHeight * 0.1,
+                    duration: 1,
+                    repeat: -1,
+                    repeatDelay: 0,
+                    yoyo: true,
+                    ease: "power0.inOut",
+                });
+        }
+        else{
+            gsap.to(creepContainer
+                ,{
+                    y: GameConstants.screenHeight * 0.1,
+                    duration: 1,
+                    repeat: -1,
+                    repeatDelay: 0,
+                    yoyo: true,
+                    ease: "power0.inOut",
+                });
         }
     }
 }
