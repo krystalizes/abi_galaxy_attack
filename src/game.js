@@ -16,6 +16,8 @@ export class Game {
     this.sfx_music=true;
     this.gamestart=false;
     this.playbutton_clicked=false;
+    this.is_upgrade=false;
+    this.clickCount=0;
     this.app.stage.eventMode="static";
     this.processBar();
     this.loadGame().then(() => {

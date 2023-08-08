@@ -17,6 +17,7 @@ export class MusicButton extends Sprite{
                     {volume:0.1},
                 );
             }
+            Game.clickCount--;
             Game.music = !Game.music;
             console.log("Music " + Game.music);
             if(Game.music) {
@@ -67,6 +68,7 @@ export class SFXButton extends Sprite {
             } else {
                 this.sfxButton.tint = 0x444444;
             }
+            Game.clickCount--;
         });
         this.sfxButton.on("pointerover", () => {
             this.sfxButton.scale.set(0.06); // Enlarge the button

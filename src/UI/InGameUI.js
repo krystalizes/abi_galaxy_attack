@@ -5,41 +5,61 @@ import { GameConstants } from "../GameConstants/GameConstants";
 import { Game } from "../game";
 import { sound } from "@pixi/sound";
 import { MusicButton, SFXButton } from "./MusicButton";
+import { CollisionHandler } from "../Collision/CollisonHandler";
+import { StartUI } from "./StartUI";
 export class InGameUI extends Container{
     constructor(){
         super();
         this.tutorial = new Container();
         this.player = new Container();
+        this.playerbase = new Container();
+        this.playerupgrade = new Container();
         this.addChild(this.tutorial);
         this.addChild(this.player);
+        this.player.addChild(this.playerbase);
+        this.player.addChild(this.playerupgrade);
+        //test
+        this.playerupgrade.visible=false;
+        this.playerbase.visible=true;
+        this.drawPowerup();
+        //
+
         this.drawPlayerShip();  
+        // test
+        Ticker.shared.add(() => {
+            if (!Game.gamestart) {
+                this.checkCollision();
+                this.checkUpgrade();
+            }
+        });
+        // 
         this.loopcircle();
-        this.clickCount=0;
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
         Game.app.stage.on("click", this.onStageClick.bind(this));
     } 
     drawPlayerShip(){
-        this.playership= Sprite.from(Texture.from("ship_blue_base"));
-        this.playership.anchor.set(0.5, 0.5);
-        this.playership.scale.set(0.5);
-        this.playership.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
-        this.player.addChild(this.playership);
+        //base
+        this.playershipbase= Sprite.from(Texture.from("ship_blue_base"));
+        this.playershipbase.anchor.set(0.5, 0.5);
+        this.playershipbase.scale.set(0.5);
+        this.playershipbase.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
+        this.playerbase.addChild(this.playershipbase);
         this.smokeblue= Sprite.from(Texture.from("smoke_blue"));
         this.smokeblue.anchor.set(0.5, 0.5);
         this.smokeblue.scale.set(0.5);
-        this.smokeblue.position.set(this.playership.x, this.playership.y+61);
-        this.player.addChild(this.smokeblue);
+        this.smokeblue.position.set(this.playershipbase.x, this.playershipbase.y+61);
+        this.playerbase.addChild(this.smokeblue);
         Ticker.shared.add(()=>{
             this.smokeblue.visible = !this.smokeblue.visible;
         },500);
         this.basewing=new Container();
-        this.left= Sprite.from(Texture.from("spr_wing_ship_left"));
-        this.left.anchor.set(1,0);
-        this.left.scale.set(0.5);
-        this.left.position.set(this.playership.x, this.playership.y+5);
-        this.basewing.addChild(this.left);
-        gsap.to(this.left
+        this.basewingleft= Sprite.from(Texture.from("spr_wing_ship_left"));
+        this.basewingleft.anchor.set(1,0);
+        this.basewingleft.scale.set(0.5);
+        this.basewingleft.position.set(this.playershipbase.x, this.playershipbase.y+5);
+        this.basewing.addChild(this.basewingleft);
+        gsap.to(this.basewingleft
         ,{
             rotation:-Math.PI/18,
             duration:0.4,
@@ -48,12 +68,12 @@ export class InGameUI extends Container{
             repeatDelay:0,
             ease: "sine.inOut",
         });
-        this.right= Sprite.from(Texture.from("spr_wing_ship_left"));
-        this.right.anchor.set(1,0);
-        this.right.scale.set(-0.5,0.5);
-        this.right.position.set(this.playership.x, this.playership.y+5);
-        this.basewing.addChild(this.right);
-        gsap.to(this.right
+        this.basewingright= Sprite.from(Texture.from("spr_wing_ship_left"));
+        this.basewingright.anchor.set(1,0);
+        this.basewingright.scale.set(-0.5,0.5);
+        this.basewingright.position.set(this.playershipbase.x, this.playershipbase.y+5);
+        this.basewing.addChild(this.basewingright);
+        gsap.to(this.basewingright
             ,{
                 rotation:Math.PI/18,
                 duration:0.4,
@@ -62,8 +82,60 @@ export class InGameUI extends Container{
                 repeatDelay:0,
                 ease: "sine.inOut",
             });
-        this.player.addChild(this.basewing);
-        this.player.setChildIndex(this.basewing,0);
+        this.playerbase.addChild(this.basewing);
+        this.playerbase.setChildIndex(this.basewing,0);
+
+        //upgrade
+        this.playershipupgrade= Sprite.from(Texture.from("ship_green_base"));
+        this.playershipupgrade.anchor.set(0.5, 0.5);
+        this.playershipupgrade.scale.set(0.6);
+        this.playershipupgrade.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.8);
+        this.playerupgrade.addChild(this.playershipupgrade);
+        this.smokegreen1= Sprite.from(Texture.from("smoke_green"));
+        this.smokegreen1.anchor.set(0.5, 0.5);
+        this.smokegreen1.scale.set(0.5);
+        this.smokegreen1.position.set(this.playershipupgrade.x-20, this.playershipupgrade.y+51);
+        this.playerupgrade.addChild(this.smokegreen1);
+        this.smokegreen2= Sprite.from(Texture.from("smoke_green"));
+        this.smokegreen2.anchor.set(0.5, 0.5);
+        this.smokegreen2.scale.set(0.5);
+        this.smokegreen2.position.set(this.playershipupgrade.x+20, this.playershipupgrade.y+51);
+        this.playerupgrade.addChild(this.smokegreen2);
+        Ticker.shared.add(()=>{
+            this.smokegreen1.visible = !this.smokegreen1.visible;
+            this.smokegreen2.visible = !this.smokegreen2.visible;
+        },500);
+        this.upgradewing=new Container();
+        this.upgradewingleft= Sprite.from(Texture.from("spr_wing_ship_2_left"));
+        this.upgradewingleft.anchor.set(1,0);
+        this.upgradewingleft.scale.set(0.5);
+        this.upgradewingleft.position.set(this.playershipupgrade.x, this.playershipupgrade.y+5);
+        this.upgradewing.addChild(this.upgradewingleft);
+        gsap.to(this.upgradewingleft
+        ,{
+            rotation:-Math.PI/18,
+            duration:0.4,
+            yoyo:true,
+            repeat:-1,
+            repeatDelay:0,
+            ease: "sine.inOut",
+        });
+        this.upgradewingright= Sprite.from(Texture.from("spr_wing_ship_2_left"));
+        this.upgradewingright.anchor.set(1,0);
+        this.upgradewingright.scale.set(-0.5,0.5);
+        this.upgradewingright.position.set(this.playershipupgrade.x, this.playershipupgrade.y+5);
+        this.upgradewing.addChild(this.upgradewingright);
+        gsap.to(this.upgradewingright
+            ,{
+                rotation:Math.PI/18,
+                duration:0.4,
+                yoyo:true,
+                repeat:-1,
+                repeatDelay:0,
+                ease: "sine.inOut",
+            });
+        this.playerupgrade.addChild(this.upgradewing);
+        this.playerupgrade.setChildIndex(this.upgradewing,0);
     }
     drawtext(){
         const container = new Container(); 
@@ -115,15 +187,39 @@ export class InGameUI extends Container{
         });
         return container;
     }
+    drawPowerup(){
+        this.powerup= Sprite.from(Texture.from("booster_power"));
+        this.powerup.anchor.set(0.5, 0.5);
+        this.powerup.scale.set(1);
+        this.powerup.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.3);
+        this.addChild(this.powerup);
+    }
+    checkCollision(){
+        if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
+            Game.is_upgrade=true;
+            if(Game.sfx_music){
+                sound.play("sfx_booster_collected",
+                    {volume:0.1},
+                );
+            };
+            this.removeChild(this.powerup);
+        }
+    }
+    checkUpgrade(){
+        if(Game.is_upgrade){
+            this.playerupgrade.visible=true;
+            this.playerbase.visible=false;
+        }
+    }
     onStageClick(e) {
-        this.clickCount++;
+        Game.clickCount++;
         const oldX = e.data.global.x;
         const oldY = e.data.global.y;
         var playerX = this.player.x;
         var playerY = this.player.y;
         var dx = oldX - playerX;
         var dy = oldY - playerY; 
-        if (Game.playbutton_clicked&&this.tutorial.parent&&this.clickCount==2) {
+        if (Game.playbutton_clicked&&this.tutorial.parent&&Game.clickCount==2) {
             this.removeChild(this.tutorial);
             Game.app.stage.on("mousemove", (e) => {
                 var newX = e.data.global.x;
@@ -131,30 +227,27 @@ export class InGameUI extends Container{
                 var moveX=newX-dx;
                 var moveY=newY-dy;
                 
-                if (moveX<=-(GameConstants.screenWidth/2-this.playership.width/2)){
+                if (moveX<=-(GameConstants.screenWidth/2-this.playershipbase.width/2)){
                     dx=newX-this.player.x;
-                    moveX=-GameConstants.screenWidth/2+this.playership.width/2;                  
+                    moveX=-GameConstants.screenWidth/2+this.playershipbase.width/2;                  
                 }
-                if (moveX>=GameConstants.screenWidth/2-this.playership.width/2){
+                if (moveX>=GameConstants.screenWidth/2-this.playershipbase.width/2){
                     dx=newX-this.player.x;
-                    moveX=GameConstants.screenWidth/2-this.playership.width/2;                  
+                    moveX=GameConstants.screenWidth/2-this.playershipbase.width/2;                  
                 }
-                if (moveY<=-(GameConstants.screenHeight*0.8-this.playership.height/2)){
+                if (moveY<=-(GameConstants.screenHeight*0.8-this.playershipbase.height/2)){
                     dy=newY-this.player.y;
-                    moveY=-GameConstants.screenHeight*0.8+this.playership.height/2;                  
+                    moveY=-GameConstants.screenHeight*0.8+this.playershipbase.height/2;                  
                 }
-                if (moveY>=GameConstants.screenHeight*0.2-this.playership.height/2){
+                if (moveY>=GameConstants.screenHeight*0.2-this.playershipbase.height/2){
                     dy=newY-this.player.y;
-                    moveY=GameConstants.screenHeight*0.2-this.playership.height/2;                  
+                    moveY=GameConstants.screenHeight*0.2-this.playershipbase.height/2;                  
                 }
                 gsap.to(this.player, {
                     x: moveX,
                     y: moveY,
-                    duration: 0.3, // Adjust the duration as needed
+                    duration: 0.2,
                 });
-                // this.player.x = moveX;
-                // console.log(moveX,moveY);
-                // this.player.y = moveY;
               });
         }
     }
