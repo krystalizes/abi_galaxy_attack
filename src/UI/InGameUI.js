@@ -15,7 +15,7 @@ export class InGameUI extends Container{
         this.playerbase = new Container();
         this.playerupgrade = new Container();
         this.creeps=[];
-        this.enemybullets=[];
+        this.enemyBullets=[];
         this.addChild(this.tutorial);
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
@@ -45,8 +45,10 @@ export class InGameUI extends Container{
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
                 this.checkUpgrade();
+                this.updateBullets();
             }
         });
+        this.startCreepShooting();
         // 
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
@@ -332,6 +334,19 @@ export class InGameUI extends Container{
                 });
         }
     }
+    startCreepShooting() {
+        const creepShootHandler = () => {
+            if (!this.tutorial.parent) {
+                for (const creep of this.creeps) {
+                    if (Math.random() < 0.001) {
+                        const creepMain = creep.getChildAt(1);
+                        this.creepShoot(creepMain.x, creepMain.y + creepMain.height / 2);
+                    }
+                }
+            }
+        };
+        Ticker.shared.add(creepShootHandler);
+    }
     drawBoss(){
         const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
         bossImg.anchor.set(0.5, 0.5);
@@ -350,4 +365,44 @@ export class InGameUI extends Container{
             }
         );
     }
+    drawCreepBullet(){
+        const creepbullet=Sprite.from(Texture.from("spr_candy_bullet"));
+        creepbullet.anchor.set(0.5, 0.5);
+        creepbullet.scale.set(0.8);
+        this.addChildAt(creepbullet,0);
+        return creepbullet;
+    }
+    creepShoot(x, y) {
+        let bullet = this.drawCreepBullet();
+        bullet.x = x;
+        bullet.y = y;
+        bullet.speed = 4;
+        this.enemyBullets.push(bullet);
+    }
+    updateBullets() {
+        // for (let i = 0; i < this.playerBullets.length; i++) {
+        //   const bullet = this.playerBullets[i];
+        //   bullet.y += bullet.speed;
+    
+        //   if (bullet.y < 0) {
+        //     this.removeBullet(bullet, i);
+        //   }
+        // }  
+
+        for (let i = 0; i < this.enemyBullets.length; i++) {
+            const bullet = this.enemyBullets[i];
+            bullet.y += bullet.speed;
+            if (bullet.y > GameConstants.screenHeight) {
+              this.removeBullet(bullet, i, false);
+            }
+          }
+    }
+    removeBullet(bullet, index, isPlayerBullet = true) {
+        this.removeChild(bullet);
+        if (isPlayerBullet) {
+        //   this.playerBullets.splice(index, 1);
+        } else {
+          this.enemyBullets.splice(index, 1);
+        }
+      }
 }
