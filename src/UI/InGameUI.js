@@ -15,6 +15,7 @@ export class InGameUI extends Container{
         this.playerbase = new Container();
         this.playerupgrade = new Container();
         this.creeps=[];
+        this.enemybullets=[];
         this.addChild(this.tutorial);
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
@@ -28,14 +29,21 @@ export class InGameUI extends Container{
 
         this.drawPlayerShip();  
         // test
-        this.drawCreep(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.5);
-        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.5);
-        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.5);
-        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.5);
-        this.drawCreep(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.5);
+        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
+        this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
+        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
+        this.drawCreep(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
+        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
+        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
+        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.45);
+        this.drawCreep(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.45);
+        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.45);
+        this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
+        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
+        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
+        this.drawBoss();
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
-                this.checkCollision();
                 this.checkUpgrade();
             }
         });
@@ -201,21 +209,18 @@ export class InGameUI extends Container{
         this.powerup.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.3);
         this.addChild(this.powerup);
     }
-    checkCollision(){
+    checkUpgrade(){
         if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
             Game.is_upgrade=true;
+            this.playerupgrade.visible=true;
+            this.playerbase.visible=false;
             if(Game.sfx_music){
                 sound.play("sfx_booster_collected",
                     {volume:0.1},
                 );
             };
+                
             this.removeChild(this.powerup);
-        }
-    }
-    checkUpgrade(){
-        if(Game.is_upgrade){
-            this.playerupgrade.visible=true;
-            this.playerbase.visible=false;
         }
     }
     onStageClick(e) {
@@ -307,7 +312,7 @@ export class InGameUI extends Container{
         if(containerIndex%2==0){
             gsap.to(creepContainer
                 ,{
-                    y: -GameConstants.screenHeight * 0.1,
+                    y: -GameConstants.screenHeight * 0.025,
                     duration: 1,
                     repeat: -1,
                     repeatDelay: 0,
@@ -318,7 +323,7 @@ export class InGameUI extends Container{
         else{
             gsap.to(creepContainer
                 ,{
-                    y: GameConstants.screenHeight * 0.1,
+                    y: GameConstants.screenHeight * 0.025,
                     duration: 1,
                     repeat: -1,
                     repeatDelay: 0,
@@ -326,5 +331,23 @@ export class InGameUI extends Container{
                     ease: "power0.inOut",
                 });
         }
+    }
+    drawBoss(){
+        const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
+        bossImg.anchor.set(0.5, 0.5);
+        bossImg.scale.set(0.8);
+        bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
+        this.addChild(bossImg);
+        gsap.fromTo(
+            bossImg,
+            { rotation:-Math.PI*1/16 },
+            {
+                rotation: Math.PI*1/16, 
+                duration: 0.8, 
+                repeat: -1,
+                yoyo: true, 
+                ease: "power1.inOut",
+            }
+        );
     }
 }
