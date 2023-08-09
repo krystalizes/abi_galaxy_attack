@@ -41,6 +41,7 @@ export class InGameUI extends Container{
         this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
+        this.boss1=null;
         this.drawBoss();
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
@@ -337,6 +338,9 @@ export class InGameUI extends Container{
     startCreepShooting() {
         const creepShootHandler = () => {
             if (!this.tutorial.parent) {
+                if (Math.random() <0.001) {
+                    this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
+                }
                 for (const creep of this.creeps) {
                     if (Math.random() < 0.001) {
                         const creepMain = creep.getChildAt(1);
@@ -364,6 +368,14 @@ export class InGameUI extends Container{
                 ease: "power1.inOut",
             }
         );
+        this.boss1=bossImg;
+    }
+    drawBossBullet(){
+        const bossbullet=Sprite.from(Texture.from("spr_rocket_bullet"));
+        bossbullet.anchor.set(0.5, 0.5);
+        bossbullet.scale.set(0.8);
+        this.addChildAt(bossbullet,0);
+        return bossbullet;
     }
     drawCreepBullet(){
         const creepbullet=Sprite.from(Texture.from("spr_candy_bullet"));
@@ -371,6 +383,14 @@ export class InGameUI extends Container{
         creepbullet.scale.set(0.8);
         this.addChildAt(creepbullet,0);
         return creepbullet;
+    }
+    bossShoot(x, y) {
+        let bullet = this.drawBossBullet();
+        bullet.rotation=Math.PI;
+        bullet.x = x;
+        bullet.y = y;
+        bullet.speed = 4;
+        this.enemyBullets.push(bullet);
     }
     creepShoot(x, y) {
         let bullet = this.drawCreepBullet();
