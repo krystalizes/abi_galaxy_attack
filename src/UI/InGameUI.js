@@ -368,19 +368,21 @@ export class InGameUI extends Container{
         };
         Ticker.shared.add(creepShootHandler);
     }
-    drawPlayerBaseBullet(){
-        const playerbasebullet=Sprite.from(Texture.from("bullet_blue"));
-        playerbasebullet.anchor.set(0.5, 0.5);
-        playerbasebullet.scale.set(0.8);
-        this.addChildAt(playerbasebullet,0);
-        return playerbasebullet;
-    }
-    drawPlayerUpgradeBullet(){
-        const playerupgradebullet=Sprite.from(Texture.from("bullet_green"));
-        playerupgradebullet.anchor.set(0.5, 0.5);
-        playerupgradebullet.scale.set(0.8);
-        this.addChildAt(playerupgradebullet,0);
-        return playerupgradebullet;
+    drawPlayerBullet(){
+        if(this.playerbase.visible){
+            const playerbasebullet=Sprite.from(Texture.from("bullet_blue"));
+            playerbasebullet.anchor.set(0.5, 0.5);
+            playerbasebullet.scale.set(0.8);
+            this.addChildAt(playerbasebullet,0);
+            return playerbasebullet;
+        }
+        else{
+            const playerupgradebullet=Sprite.from(Texture.from("bullet_green"));
+            playerupgradebullet.anchor.set(0.5, 0.5);
+            playerupgradebullet.scale.set(0.8);
+            this.addChildAt(playerupgradebullet,0);
+            return playerupgradebullet;
+        }
     }
     drawBoss(){
         const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
@@ -431,38 +433,28 @@ export class InGameUI extends Container{
         this.enemyBullets.push(bullet);
     }
     playerShoot(x,y){
-        if(this.playerbase.visible){
-            let bullet1 = this.drawPlayerBaseBullet();
-            bullet1.x = x;
-            bullet1.y = y;
-            bullet1.speed = -10;
-            this.playerBullets.push(bullet1);
-        }
-        else{
-            let bullet2 = this.drawPlayerUpgradeBullet();
-            bullet2.x = x;
-            bullet2.y = y;
-            bullet2.speed = -10;
-            this.playerBullets.push(bullet2);
-        }      
+        let bullet = this.drawPlayerBullet();
+        bullet.x = x;
+        bullet.y = y;
+        bullet.speed = -10;
+        this.playerBullets.push(bullet);
     }
     updateBullets() {
         for (let i = 0; i < this.playerBullets.length; i++) {
           const bullet = this.playerBullets[i];
           bullet.y += bullet.speed;
     
-        //   if (bullet.y <= 0) {
-        //     this.removeBullet(bullet, i);
-        //   }
+          if (bullet.y <= 0) {
+            this.removeBullet(bullet, i);
+          }
         }  
 
         for (let i = 0; i < this.enemyBullets.length; i++) {
             const bullet = this.enemyBullets[i];
             bullet.y += bullet.speed;
-            // if (bullet.y >= GameConstants.screenHeight) {
-            //     console.log(bullet.y);
-            //   this.removeBullet(bullet, i, false);
-            // }
+            if (bullet.y >= GameConstants.screenHeight) {
+              this.removeBullet(bullet, i, false);
+            }
           }
     }
     removeBullet(bullet, index, isPlayerBullet = true) {
