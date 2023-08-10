@@ -16,6 +16,7 @@ export class InGameUI extends Container{
         this.playerupgrade = new Container();
         this.creeps=[];
         this.enemyBullets=[];
+        this.playerBullets=[];
         this.addChild(this.tutorial);
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
@@ -43,10 +44,14 @@ export class InGameUI extends Container{
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
         this.drawBoss();
+        setInterval(() => {
+            this.startPlayerShooting();
+        }, 200);
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
+                
                 this.checkUpgrade();
-                this.updateBullets();
+                this.updateBullets();         
             }
         });
         this.startCreepShooting();
@@ -273,6 +278,7 @@ export class InGameUI extends Container{
         creepMain.anchor.set(0.5, 0.5);
         creepMain.scale.set(0.5);
         creepMain.position.set(x, y);
+        creepMain.hp=10;
         creepContainer.addChild(creepMain);
         const creepHead= Sprite.from(Texture.from("spr_robot_noel_3"));
         creepHead.anchor.set(0.5, 0.5);
@@ -335,6 +341,17 @@ export class InGameUI extends Container{
                 });
         }
     }
+    startPlayerShooting(){
+        if (!this.tutorial.parent) {
+            const playerBaseGlobalPosition = this.playerbase.toGlobal(this.playershipbase.position);
+            this.playerShoot(playerBaseGlobalPosition.x,playerBaseGlobalPosition.y-this.playershipbase.height/2);
+            if(Game.sfx_music){
+                sound.play("sfx_shoot",
+                    {volume:0.1},
+                );
+            }
+        }
+    }
     startCreepShooting() {
         const creepShootHandler = () => {
             if (!this.tutorial.parent) {
@@ -351,11 +368,26 @@ export class InGameUI extends Container{
         };
         Ticker.shared.add(creepShootHandler);
     }
+    drawPlayerBaseBullet(){
+        const playerbasebullet=Sprite.from(Texture.from("bullet_blue"));
+        playerbasebullet.anchor.set(0.5, 0.5);
+        playerbasebullet.scale.set(0.8);
+        this.addChildAt(playerbasebullet,0);
+        return playerbasebullet;
+    }
+    drawPlayerUpgradeBullet(){
+        const playerupgradebullet=Sprite.from(Texture.from("bullet_green"));
+        playerupgradebullet.anchor.set(0.5, 0.5);
+        playerupgradebullet.scale.set(0.8);
+        this.addChildAt(playerupgradebullet,0);
+        return playerupgradebullet;
+    }
     drawBoss(){
         const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
         bossImg.anchor.set(0.5, 0.5);
         bossImg.scale.set(0.8);
         bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
+        bossImg.hp=50;
         this.addChild(bossImg);
         gsap.fromTo(
             bossImg,
@@ -371,14 +403,14 @@ export class InGameUI extends Container{
         this.boss1=bossImg;
     }
     drawBossBullet(){
-        const bossbullet=Sprite.from(Texture.from("spr_rocket_bullet"));
+        const bossbullet=Sprite.from(Texture.from("spr_candy_bullet"));
         bossbullet.anchor.set(0.5, 0.5);
         bossbullet.scale.set(0.8);
         this.addChildAt(bossbullet,0);
         return bossbullet;
     }
     drawCreepBullet(){
-        const creepbullet=Sprite.from(Texture.from("spr_candy_bullet"));
+        const creepbullet=Sprite.from(Texture.from("bullet_enemy"));
         creepbullet.anchor.set(0.5, 0.5);
         creepbullet.scale.set(0.8);
         this.addChildAt(creepbullet,0);
@@ -386,7 +418,6 @@ export class InGameUI extends Container{
     }
     bossShoot(x, y) {
         let bullet = this.drawBossBullet();
-        bullet.rotation=Math.PI;
         bullet.x = x;
         bullet.y = y;
         bullet.speed = 4;
@@ -399,28 +430,45 @@ export class InGameUI extends Container{
         bullet.speed = 4;
         this.enemyBullets.push(bullet);
     }
+    playerShoot(x,y){
+        if(this.playerbase.visible){
+            let bullet1 = this.drawPlayerBaseBullet();
+            bullet1.x = x;
+            bullet1.y = y;
+            bullet1.speed = -10;
+            this.playerBullets.push(bullet1);
+        }
+        else{
+            let bullet2 = this.drawPlayerUpgradeBullet();
+            bullet2.x = x;
+            bullet2.y = y;
+            bullet2.speed = -10;
+            this.playerBullets.push(bullet2);
+        }      
+    }
     updateBullets() {
-        // for (let i = 0; i < this.playerBullets.length; i++) {
-        //   const bullet = this.playerBullets[i];
-        //   bullet.y += bullet.speed;
+        for (let i = 0; i < this.playerBullets.length; i++) {
+          const bullet = this.playerBullets[i];
+          bullet.y += bullet.speed;
     
-        //   if (bullet.y < 0) {
+        //   if (bullet.y <= 0) {
         //     this.removeBullet(bullet, i);
         //   }
-        // }  
+        }  
 
         for (let i = 0; i < this.enemyBullets.length; i++) {
             const bullet = this.enemyBullets[i];
             bullet.y += bullet.speed;
-            if (bullet.y > GameConstants.screenHeight) {
-              this.removeBullet(bullet, i, false);
-            }
+            // if (bullet.y >= GameConstants.screenHeight) {
+            //     console.log(bullet.y);
+            //   this.removeBullet(bullet, i, false);
+            // }
           }
     }
     removeBullet(bullet, index, isPlayerBullet = true) {
         this.removeChild(bullet);
         if (isPlayerBullet) {
-        //   this.playerBullets.splice(index, 1);
+          this.playerBullets.splice(index, 1);
         } else {
           this.enemyBullets.splice(index, 1);
         }
