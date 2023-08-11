@@ -22,6 +22,8 @@ export class InGameUI extends Container{
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
         this.player.addChild(this.playerupgrade);
+        this.dx=0;
+        this.dy=0;
         
         //test
         this.playerupgrade.visible=false;
@@ -46,27 +48,34 @@ export class InGameUI extends Container{
         this.boss1=null;
         this.drawBoss();
         // setInterval(() => {
-        //     this.startPlayerShooting();
+        //     if(!this.isInvincible){
+        //         this.startPlayerShooting();
+        //     }
         // }, 200);
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
-                // if (this.isMovingAfterHit) {
+                if(!this.isInvincible){
                     this.checkCollision();
-                // }
+                }
                 
                 this.updateBullets();         
             }
             if (this.isInvincible) {
                 // Don't allow mouse movement during cooldown
                 Game.app.stage.off("mousemove");
+                
             }
-            // }else{
+            else{
+                if(!this.tutorial.parent){
+                    this.move();
+                }
+
             //     Game.app.stage.on("click", this.onStageClick.bind(this));
             // }
             //  else if (!this.isMovingAfterHit && !this.tutorial.parent && Game.playbutton_clicked) {
             //     console.log("yes");
             //     Game.app.stage.on("mousemove", this.onStageClick.bind(this));
-            // }
+            }
         });
         this.startCreepShooting();
         // 
@@ -271,25 +280,29 @@ export class InGameUI extends Container{
               }
             }
         }
-        for (let i = 0; i < this.enemyBullets.length; i++) {
-            const enemyBullet = this.enemyBullets[i];
-            if (CollisionHandler.detectCollision(enemyBullet, this.playershipbase)) { 
-                this.removeBullet(enemyBullet, i, false);
-                Game.is_upgrade = false; 
-                this.playerbase.visible = true;
-                this.playerupgrade.visible = false;
-                gsap.to(this.player, {
-                    x: 0,
-                    y: 0,
-                    duration: 0.2,
-                });        
-                this.isInvincible = true;
-                setTimeout(() => {
-                    this.isInvincible = false;
-                }, 2000);
-              break;
-            }
-          }
+        if(!this.isInvincible){
+            for (let i = 0; i < this.enemyBullets.length; i++) {
+                const enemyBullet = this.enemyBullets[i];
+                if (CollisionHandler.detectCollision(enemyBullet, this.playershipbase)) { 
+                    this.removeBullet(enemyBullet, i, false);
+                    Game.is_upgrade = false; 
+                    this.playerbase.visible = true;
+                    this.playerupgrade.visible = false;
+                    gsap.to(this.player, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.2,
+                    });    
+                    gsap.to(this.player, { alpha:0, duration: 0.25, repeat:7,yoyo:true, });  
+                    this.isInvincible = true;
+                    setTimeout(() => {
+                        this.isInvincible = false;
+                    }, 2000);
+                  break;
+                }
+              }
+        }
+        
     }
     onStageClick(e) {
         Game.clickCount++;
@@ -297,39 +310,42 @@ export class InGameUI extends Container{
         const oldY = e.data.global.y;
         var playerX = this.player.x;
         var playerY = this.player.y;
-        var dx = oldX - playerX;
-        var dy = oldY - playerY; 
+        this.dx = oldX - playerX;
+        this.dy = oldY - playerY; 
         if (Game.playbutton_clicked&&this.tutorial.parent&&Game.clickCount==2) {
             this.removeChild(this.tutorial);
-            Game.app.stage.on("mousemove", (e) => {
-                var newX = e.data.global.x;
-                var newY = e.data.global.y; 
-                var moveX=newX-dx;
-                var moveY=newY-dy;
-                
-                if (moveX<=-(GameConstants.screenWidth/2-this.playershipbase.width/2)){
-                    dx=newX-this.player.x;
-                    moveX=-GameConstants.screenWidth/2+this.playershipbase.width/2;                  
-                }
-                if (moveX>=GameConstants.screenWidth/2-this.playershipbase.width/2){
-                    dx=newX-this.player.x;
-                    moveX=GameConstants.screenWidth/2-this.playershipbase.width/2;                  
-                }
-                if (moveY<=-(GameConstants.screenHeight*0.8-this.playershipbase.height/2)){
-                    dy=newY-this.player.y;
-                    moveY=-GameConstants.screenHeight*0.8+this.playershipbase.height/2;                  
-                }
-                if (moveY>=GameConstants.screenHeight*0.2-this.playershipbase.height/2){
-                    dy=newY-this.player.y;
-                    moveY=GameConstants.screenHeight*0.2-this.playershipbase.height/2;                  
-                }
-                gsap.to(this.player, {
-                    x: moveX,
-                    y: moveY,
-                    duration: 0.2,
-                });
-              });
+            this.move();
         }
+    }
+    move(){
+        Game.app.stage.on("mousemove", (e) => {
+            var newX = e.data.global.x;
+            var newY = e.data.global.y; 
+            var moveX=newX-this.dx;
+            var moveY=newY-this.dy;
+            
+            if (moveX<=-(GameConstants.screenWidth/2-this.playershipbase.width/2)){
+                this.dx=newX-this.player.x;
+                moveX=-GameConstants.screenWidth/2+this.playershipbase.width/2;                  
+            }
+            if (moveX>=GameConstants.screenWidth/2-this.playershipbase.width/2){
+                this.dx=newX-this.player.x;
+                moveX=GameConstants.screenWidth/2-this.playershipbase.width/2;                  
+            }
+            if (moveY<=-(GameConstants.screenHeight*0.8-this.playershipbase.height/2)){
+                this.dy=newY-this.player.y;
+                moveY=-GameConstants.screenHeight*0.8+this.playershipbase.height/2;                  
+            }
+            if (moveY>=GameConstants.screenHeight*0.2-this.playershipbase.height/2){
+                this.dy=newY-this.player.y;
+                moveY=GameConstants.screenHeight*0.2-this.playershipbase.height/2;                  
+            }
+            gsap.to(this.player, {
+                x: moveX,
+                y: moveY,
+                duration: 0.2,
+            });
+          });
     }
     drawCreep(x,y){
         const creepContainer = new Container();
@@ -416,7 +432,7 @@ export class InGameUI extends Container{
     startCreepShooting() {
         const creepShootHandler = () => {
             if (!this.tutorial.parent) {
-                if (Math.random() <0.5 && this.boss1.parent) {
+                if (Math.random() <0.001 && this.boss1.parent) {
                     this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
                 }
                 for (const creep of this.creeps) {
@@ -511,8 +527,9 @@ export class InGameUI extends Container{
     }
     updateBullets() {
         for (let i = 0; i < this.playerBullets.length; i++) {
-          const bullet = this.playerBullets[i];
-          bullet.y += bullet.speed;
+            const bullet = this.playerBullets[i];
+            bullet.y += bullet.speed;
+        
     
         //   if (bullet.y < 0) {
         //     this.removeBullet(bullet, i);
