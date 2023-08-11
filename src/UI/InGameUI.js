@@ -47,11 +47,11 @@ export class InGameUI extends Container{
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
         this.drawBoss();
-        // setInterval(() => {
-        //     if(!this.isInvincible){
-        //         this.startPlayerShooting();
-        //     }
-        // }, 200);
+        setInterval(() => {
+            if(!this.isInvincible){
+                this.startPlayerShooting();
+            }
+        }, 200);
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
                 if(!this.isInvincible){
@@ -259,7 +259,6 @@ export class InGameUI extends Container{
               const creep = this.creeps[j];
               if (CollisionHandler.detectCollision(playerBullet, creep)) {
                 creep.hp-=playerBullet.dmg;
-                console.log(creep.hp,playerBullet.dmg);
                 if(creep.hp<=0){
                     this.removeChild(creep);
                     this.creeps.splice(j, 1);
@@ -314,7 +313,6 @@ export class InGameUI extends Container{
         this.dy = oldY - playerY; 
         if (Game.playbutton_clicked&&this.tutorial.parent&&Game.clickCount==2) {
             this.removeChild(this.tutorial);
-            this.move();
         }
     }
     move(){
