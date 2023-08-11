@@ -17,6 +17,7 @@ export class InGameUI extends Container{
         this.creeps=[];
         this.enemyBullets=[];
         this.playerBullets=[];
+        this.bulletlvlupArray=[];
         this.isInvincible = false;           
         this.addChild(this.tutorial);
         this.addChild(this.player);
@@ -24,15 +25,10 @@ export class InGameUI extends Container{
         this.player.addChild(this.playerupgrade);
         this.dx=0;
         this.dy=0;
-        
-        //test
+        this.bulletCount = 2;
         this.playerupgrade.visible=false;
         this.playerbase.visible=true;
-        this.drawPowerup();
-        //
-
         this.drawPlayerShip();  
-        // test
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
         this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
         this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
@@ -58,23 +54,16 @@ export class InGameUI extends Container{
                     this.checkCollision();
                 }
                 
-                this.updateBullets();         
+                this.updateBullets(); 
+                this.updatebooster();        
             }
             if (this.isInvincible) {
-                // Don't allow mouse movement during cooldown
                 Game.app.stage.off("mousemove");
-                
             }
             else{
                 if(!this.tutorial.parent){
                     this.move();
                 }
-
-            //     Game.app.stage.on("click", this.onStageClick.bind(this));
-            // }
-            //  else if (!this.isMovingAfterHit && !this.tutorial.parent && Game.playbutton_clicked) {
-            //     console.log("yes");
-            //     Game.app.stage.on("mousemove", this.onStageClick.bind(this));
             }
         });
         this.startCreepShooting();
@@ -233,26 +222,77 @@ export class InGameUI extends Container{
         });
         return container;
     }
-    drawPowerup(){
+    drawPowerup(x,y){
         this.powerup= Sprite.from(Texture.from("booster_power"));
         this.powerup.anchor.set(0.5, 0.5);
         this.powerup.scale.set(1);
-        this.powerup.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.3);
+        this.powerup.position.set(x, y);
         this.addChild(this.powerup);
     }
+    drawBulletLvlup(x,y){
+        const sprite = Sprite.from(Texture.from("booster_levelup"));
+        sprite.anchor.set(0.5, 0.5);
+        sprite.scale.set(1);
+        sprite.position.set(x,y);
+        this.addChild(sprite);
+        this.bulletlvlupArray.push(sprite);
+    }
     checkCollision(){
-        if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
-            Game.is_upgrade=true;
-            this.playerupgrade.visible=true;
-            this.playerbase.visible=false;
-            if(Game.sfx_music){
-                sound.play("sfx_booster_collected",
-                    {volume:0.1},
-                );
-            };
-                
-            this.removeChild(this.powerup);
+        if(this.powerup){
+            if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
+                Game.is_upgrade=true;
+                this.playerupgrade.visible=true;
+                this.playerbase.visible=false;
+                const glow=Sprite.from(Texture.from("spr_star"));
+                glow.anchor.set(0.5, 0.5);
+                glow.scale.set(1.5);
+                glow.position.set(this.playershipbase.x, this.playershipbase.y);
+                this.player.addChildAt(glow,0);
+                gsap.to(glow,
+                    {
+                        alpha:0,
+                        repeat:2,
+                        yoyo:true,
+                        duration:0.2,
+                    });
+                if(Game.sfx_music){
+                    sound.play("sfx_booster_collected",
+                        {volume:0.1},
+                    );
+                };
+                    
+                this.removeChild(this.powerup);
+            }
         }
+
+        for (let i = 0; i < this.bulletlvlupArray.length; i++) {
+            const lvlup = this.bulletlvlupArray[i];
+            if (CollisionHandler.detectCollision(lvlup, this.playershipbase)) { 
+                const glow=Sprite.from(Texture.from("spr_white_glow"));
+                glow.anchor.set(0.5, 0.5);
+                glow.scale.set(1.5);
+                glow.position.set(this.playershipbase.x, this.playershipbase.y);
+                this.player.addChildAt(glow,0);
+                gsap.to(glow,
+                    {
+                        alpha:0,
+                        repeat:2,
+                        yoyo:true,
+                        duration:0.2,
+                    });
+                if(Game.sfx_music){
+                    sound.play("sfx_booster_collected",
+                        {volume:0.1},
+                    );
+                };
+                this.bulletlvlupArray.splice(i, 1);
+                this.removeChild(lvlup);
+                this.bulletCount+=1;
+                break;
+            }
+        }
+
+        
         for (let i = 0; i < this.playerBullets.length; i++) {
             const playerBullet = this.playerBullets[i];
             for (let j = 0; j < this.creeps.length; j++) {
@@ -260,21 +300,24 @@ export class InGameUI extends Container{
               if (CollisionHandler.detectCollision(playerBullet, creep)) {
                 creep.hp-=playerBullet.dmg;
                 if(creep.hp<=0){
+                    if (creep === this.boss1) {
+                        if (Game.sfx_music) {
+                            sound.play("sfx_explosion", { volume: 0.1 });
+                        }
+                        this.drawPowerup(creep.x,creep.y);
+                    } else {
+                        if (Game.sfx_music) {
+                            sound.play("sfx_enemy_explode", { volume: 0.1 });
+                        }
+                        if(Math.random() > 0.75){
+                            const creepmain=creep.getChildAt(1);
+                            this.drawBulletLvlup(creepmain.x,creepmain.y);
+                        }
+                    }
                     this.removeChild(creep);
                     this.creeps.splice(j, 1);
-                    if(Game.sfx_music){
-                        sound.play("sfx_enemy_explode",
-                            {volume:0.1},
-                        );
-                    };
                 }
                 this.removeBullet(playerBullet, i);
-                
-                // if (Math.random() < 0.05) {
-                //   this.spawnLives(eShip.x, eShip.y);
-                // } else if(Math.random() > 0.95){
-                //   this.spawnPowerUp(eShip.x, eShip.y);
-                // }
                 break;
               }
             }
@@ -299,7 +342,40 @@ export class InGameUI extends Container{
                     }, 2000);
                   break;
                 }
-              }
+            }
+            for (let i = 0; i < this.creeps.length; i++) {
+                const creep = this.creeps[i];
+                if (CollisionHandler.detectCollision(creep, this.playershipbase)) { 
+                    if(creep.hp<=2){
+                        this.removeChild(creep);
+                        this.creeps.splice(i, 1);
+                        if(Game.sfx_music){
+                            sound.play("sfx_enemy_explode",
+                                {volume:0.1},
+                            );
+                        };
+                    }
+                    if(Game.sfx_music){
+                        sound.play("sfx_explode",
+                            {volume:0.1},
+                        );
+                    };
+                    Game.is_upgrade = false; 
+                    this.playerbase.visible = true;
+                    this.playerupgrade.visible = false;
+                    gsap.to(this.player, {
+                        x: 0,
+                        y: 0,
+                        duration: 0.2,
+                    });    
+                    gsap.to(this.player, { alpha:0, duration: 0.25, repeat:7,yoyo:true, });  
+                    this.isInvincible = true;
+                    setTimeout(() => {
+                        this.isInvincible = false;
+                    }, 2000);
+                  break;
+                }
+            }
         }
         
     }
@@ -541,6 +617,15 @@ export class InGameUI extends Container{
               this.removeBullet(bullet, i, false);
             }
           }
+    }
+    updatebooster(){
+        if(this.powerup){
+            this.powerup.y+=2;
+        }
+        for (let i = 0; i < this.bulletlvlupArray.length; i++) {
+            const lvlup = this.bulletlvlupArray[i];
+            lvlup.y += 2;
+        }
     }
     removeBullet(bullet, index, isPlayerBullet = true) {
         this.removeChild(bullet);
