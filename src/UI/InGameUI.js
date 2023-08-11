@@ -17,6 +17,7 @@ export class InGameUI extends Container{
         this.creeps=[];
         this.enemyBullets=[];
         this.playerBullets=[];
+        this.isInvincible = false;           
         this.addChild(this.tutorial);
         this.addChild(this.player);
         this.player.addChild(this.playerbase);
@@ -44,15 +45,28 @@ export class InGameUI extends Container{
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
         this.drawBoss();
-        setInterval(() => {
-            this.startPlayerShooting();
-        }, 200);
+        // setInterval(() => {
+        //     this.startPlayerShooting();
+        // }, 200);
         Ticker.shared.add(() => {
             if (!Game.gamestart) {
+                // if (this.isMovingAfterHit) {
+                    this.checkCollision();
+                // }
                 
-                this.checkUpgrade();
                 this.updateBullets();         
             }
+            if (this.isInvincible) {
+                // Don't allow mouse movement during cooldown
+                Game.app.stage.off("mousemove");
+            }
+            // }else{
+            //     Game.app.stage.on("click", this.onStageClick.bind(this));
+            // }
+            //  else if (!this.isMovingAfterHit && !this.tutorial.parent && Game.playbutton_clicked) {
+            //     console.log("yes");
+            //     Game.app.stage.on("mousemove", this.onStageClick.bind(this));
+            // }
         });
         this.startCreepShooting();
         // 
@@ -217,7 +231,7 @@ export class InGameUI extends Container{
         this.powerup.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.3);
         this.addChild(this.powerup);
     }
-    checkUpgrade(){
+    checkCollision(){
         if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
             Game.is_upgrade=true;
             this.playerupgrade.visible=true;
@@ -230,6 +244,52 @@ export class InGameUI extends Container{
                 
             this.removeChild(this.powerup);
         }
+        for (let i = 0; i < this.playerBullets.length; i++) {
+            const playerBullet = this.playerBullets[i];
+            for (let j = 0; j < this.creeps.length; j++) {
+              const creep = this.creeps[j];
+              if (CollisionHandler.detectCollision(playerBullet, creep)) {
+                creep.hp-=playerBullet.dmg;
+                console.log(creep.hp,playerBullet.dmg);
+                if(creep.hp<=0){
+                    this.removeChild(creep);
+                    this.creeps.splice(j, 1);
+                    if(Game.sfx_music){
+                        sound.play("sfx_enemy_explode",
+                            {volume:0.1},
+                        );
+                    };
+                }
+                this.removeBullet(playerBullet, i);
+                
+                // if (Math.random() < 0.05) {
+                //   this.spawnLives(eShip.x, eShip.y);
+                // } else if(Math.random() > 0.95){
+                //   this.spawnPowerUp(eShip.x, eShip.y);
+                // }
+                break;
+              }
+            }
+        }
+        for (let i = 0; i < this.enemyBullets.length; i++) {
+            const enemyBullet = this.enemyBullets[i];
+            if (CollisionHandler.detectCollision(enemyBullet, this.playershipbase)) { 
+                this.removeBullet(enemyBullet, i, false);
+                Game.is_upgrade = false; 
+                this.playerbase.visible = true;
+                this.playerupgrade.visible = false;
+                gsap.to(this.player, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.2,
+                });        
+                this.isInvincible = true;
+                setTimeout(() => {
+                    this.isInvincible = false;
+                }, 2000);
+              break;
+            }
+          }
     }
     onStageClick(e) {
         Game.clickCount++;
@@ -278,8 +338,9 @@ export class InGameUI extends Container{
         creepMain.anchor.set(0.5, 0.5);
         creepMain.scale.set(0.5);
         creepMain.position.set(x, y);
-        creepMain.hp=10;
+        // creepMain.hp=10;
         creepContainer.addChild(creepMain);
+        creepContainer.hp=10;
         const creepHead= Sprite.from(Texture.from("spr_robot_noel_3"));
         creepHead.anchor.set(0.5, 0.5);
         creepHead.scale.set(0.5);
@@ -355,11 +416,11 @@ export class InGameUI extends Container{
     startCreepShooting() {
         const creepShootHandler = () => {
             if (!this.tutorial.parent) {
-                if (Math.random() <0.001) {
+                if (Math.random() <0.5 && this.boss1.parent) {
                     this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
                 }
                 for (const creep of this.creeps) {
-                    if (Math.random() < 0.001) {
+                    if (Math.random() < 0.001 ) {
                         const creepMain = creep.getChildAt(1);
                         this.creepShoot(creepMain.x, creepMain.y + creepMain.height / 2);
                     }
@@ -373,6 +434,7 @@ export class InGameUI extends Container{
             const playerbasebullet=Sprite.from(Texture.from("bullet_blue"));
             playerbasebullet.anchor.set(0.5, 0.5);
             playerbasebullet.scale.set(0.8);
+            playerbasebullet.dmg=2;
             this.addChildAt(playerbasebullet,0);
             return playerbasebullet;
         }
@@ -380,6 +442,7 @@ export class InGameUI extends Container{
             const playerupgradebullet=Sprite.from(Texture.from("bullet_green"));
             playerupgradebullet.anchor.set(0.5, 0.5);
             playerupgradebullet.scale.set(0.8);
+            playerupgradebullet.dmg=4;
             this.addChildAt(playerupgradebullet,0);
             return playerupgradebullet;
         }
@@ -391,6 +454,7 @@ export class InGameUI extends Container{
         bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
         bossImg.hp=50;
         this.addChild(bossImg);
+        this.creeps.push(bossImg);
         gsap.fromTo(
             bossImg,
             { rotation:-Math.PI*1/16 },
@@ -433,20 +497,26 @@ export class InGameUI extends Container{
         this.enemyBullets.push(bullet);
     }
     playerShoot(x,y){
-        let bullet = this.drawPlayerBullet();
-        bullet.x = x;
-        bullet.y = y;
-        bullet.speed = -10;
-        this.playerBullets.push(bullet);
+        let bullet1 = this.drawPlayerBullet();
+        let bullet2 = this.drawPlayerBullet();
+        bullet1.x = x;
+        bullet1.y = y+50;
+        bullet2.x = x;
+        bullet2.y = y+50;
+        bullet1.speed = -10;
+        bullet2.speed = -10;
+        gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-20, y: y-20, duration: 0.25 });
+        gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x+20, y: y-20, duration: 0.25 });
+        this.playerBullets.push(bullet1,bullet2);
     }
     updateBullets() {
         for (let i = 0; i < this.playerBullets.length; i++) {
           const bullet = this.playerBullets[i];
           bullet.y += bullet.speed;
     
-          if (bullet.y <= 0) {
-            this.removeBullet(bullet, i);
-          }
+        //   if (bullet.y < 0) {
+        //     this.removeBullet(bullet, i);
+        //   }
         }  
 
         for (let i = 0; i < this.enemyBullets.length; i++) {
