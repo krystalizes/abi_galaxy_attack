@@ -643,7 +643,7 @@ export class InGameUI extends Container{
             gsap.fromTo(bullet5, { x: bullet5.x, y: bullet5.y }, { x: x+40, y: y-20, duration: 0.15 });
             this.playerBullets.push(bullet1,bullet2,bullet3,bullet4,bullet5);
         }
-        else if(this.bulletCount==6){
+        else if(this.bulletCount>=6){
             let bullet1 = this.drawPlayerBullet();
             let bullet2 = this.drawPlayerBullet();
             let bullet3 = this.drawPlayerBullet();
