@@ -25,7 +25,7 @@ export class InGameUI extends Container{
         this.player.addChild(this.playerupgrade);
         this.dx=0;
         this.dy=0;
-        this.bulletCount = 6;
+        this.bulletCount = 2;
         this.playerupgrade.visible=false;
         this.playerbase.visible=true;
         this.drawPlayerShip();  
@@ -525,7 +525,7 @@ export class InGameUI extends Container{
             playerbasebullet.anchor.set(0.5, 0.5);
             playerbasebullet.scale.set(0.8);
             playerbasebullet.dmg=2;
-            playerbasebullet.speed=-10;
+            // playerbasebullet.speed=-10;
             this.addChildAt(playerbasebullet,0);
             return playerbasebullet;
         }
@@ -534,7 +534,7 @@ export class InGameUI extends Container{
             playerupgradebullet.anchor.set(0.5, 0.5);
             playerupgradebullet.scale.set(0.8);
             playerupgradebullet.dmg=4;
-            playerupgradebullet.speed=-10;
+            // playerupgradebullet.speed=-10;
             this.addChildAt(playerupgradebullet,0);
             return playerupgradebullet;
         }
@@ -588,101 +588,56 @@ export class InGameUI extends Container{
         bullet.speed = 4;
         this.enemyBullets.push(bullet);
     }
-    playerShoot(x,y){
-        if(this.bulletCount==2){
-            let bullet1 = this.drawPlayerBullet();
-            let bullet2 = this.drawPlayerBullet();
-            bullet1.x = bullet2.x = x;
-            bullet1.y = bullet2.y = y+50;
-            gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-20, y: y-20, duration: 0.25 });
-            gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x+20, y: y-20, duration: 0.25 });
-            this.playerBullets.push(bullet1,bullet2);
+    playerShoot(x, y) {
+        if (this.bulletCount > 6) this.bulletCount = 6;
+        if (this.playerbase.visible) {  // đạn xanh
+            for (let i = - (this.bulletCount - 1) / 2; i <= (this.bulletCount - 1) / 2; i++) {
+                let bullet = this.drawPlayerBullet();
+                bullet.x = x;
+                bullet.y = y;
+                bullet.speed = -5;
+                gsap.fromTo(bullet, { x: bullet.x, y: bullet.y }, { x: x + 20 * i, y: y + Math.abs(25 * i), duration: 0.25 });
+                this.playerBullets.push(bullet)
+            }
         }
-        else if(this.bulletCount==3){
-            let bullet1 = this.drawPlayerBullet();
-            let bullet2 = this.drawPlayerBullet();
-            let bullet3 = this.drawPlayerBullet();
-            bullet1.x=bullet2.x=bullet3.x = x;
-            bullet1.y=bullet2.y=bullet3.y = y+50;
-            gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-30, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet3, { x: bullet3.x, y: bullet3.y }, { x: x+30, y: y-20, duration: 0.15 });
-            this.playerBullets.push(bullet1,bullet2,bullet3);
+        else {
+            for (let i = - (this.bulletCount - 1) / 2; i <= (this.bulletCount - 1) / 2; i++) {
+                let bullet = this.drawPlayerBullet();
+                bullet.x = x + 25 * i;
+                bullet.y = y + Math.abs(20 * i);
+                bullet.speed = -5;
+                bullet.rotation = 10 * (Math.PI / 180) * i;
+                this.playerBullets.push(bullet);
+            }
         }
-        else if(this.bulletCount==4){
-            let bullet1 = this.drawPlayerBullet();
-            let bullet2 = this.drawPlayerBullet();
-            let bullet3 = this.drawPlayerBullet();
-            let bullet4 = this.drawPlayerBullet();
-            bullet1.x=bullet2.x=bullet3.x=bullet4.x = x;
-            bullet1.y=bullet2.y=bullet3.y=bullet4.y = y+50;
-            bullet1.rotation = -5 * (Math.PI / 180);
-            bullet4.rotation = 5 * (Math.PI / 180);
-            gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-40, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x-20, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet3, { x: bullet3.x, y: bullet3.y }, { x: x+20, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet4, { x: bullet4.x, y: bullet4.y }, { x: x+40, y: y-20, duration: 0.15 });
-            this.playerBullets.push(bullet1,bullet2,bullet3,bullet4);
-        }
-        else if(this.bulletCount==5){
-            let bullet1 = this.drawPlayerBullet();
-            let bullet2 = this.drawPlayerBullet();
-            let bullet3 = this.drawPlayerBullet();
-            let bullet4 = this.drawPlayerBullet();
-            let bullet5 = this.drawPlayerBullet();
-            bullet1.x=bullet2.x=bullet3.x=bullet4.x=bullet5.x = x;
-            bullet1.y=bullet2.y=bullet3.y=bullet4.y=bullet5.y = y+50;
-            bullet1.rotation = -5 * (Math.PI / 180);
-            bullet2.rotation = -2 * (Math.PI / 180);
-            bullet4.rotation = 2 * (Math.PI / 180);
-            bullet5.rotation = 5 * (Math.PI / 180);
-            gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-40, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x-20, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet3, { x: bullet3.x, y: bullet3.y }, { x: x, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet4, { x: bullet4.x, y: bullet4.y }, { x: x+20, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet5, { x: bullet5.x, y: bullet5.y }, { x: x+40, y: y-20, duration: 0.15 });
-            this.playerBullets.push(bullet1,bullet2,bullet3,bullet4,bullet5);
-        }
-        else if(this.bulletCount>=6){
-            let bullet1 = this.drawPlayerBullet();
-            let bullet2 = this.drawPlayerBullet();
-            let bullet3 = this.drawPlayerBullet();
-            let bullet4 = this.drawPlayerBullet();
-            let bullet5 = this.drawPlayerBullet();
-            let bullet6 = this.drawPlayerBullet();
-            bullet1.x=bullet2.x=bullet3.x=bullet4.x=bullet5.x=bullet6.x = x;
-            bullet1.y=bullet2.y=bullet3.y=bullet4.y=bullet5.y=bullet6.y = y+50;
-            bullet1.rotation = -5 * (Math.PI / 180);
-            bullet2.rotation = -3.5 * (Math.PI / 180);
-            bullet5.rotation = 3.5 * (Math.PI / 180);
-            bullet6.rotation = 5 * (Math.PI / 180);
-            gsap.fromTo(bullet1, { x: bullet1.x, y: bullet1.y }, { x: x-50, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet2, { x: bullet2.x, y: bullet2.y }, { x: x-25, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet3, { x: bullet3.x, y: bullet3.y }, { x: x-15, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet4, { x: bullet4.x, y: bullet4.y }, { x: x+15, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet5, { x: bullet5.x, y: bullet5.y }, { x: x+25, y: y-20, duration: 0.15 });
-            gsap.fromTo(bullet6, { x: bullet6.x, y: bullet6.y }, { x: x+50, y: y-20, duration: 0.15 });
-            this.playerBullets.push(bullet1,bullet2,bullet3,bullet4,bullet5,bullet6);
-        }
-       
     }
     updateBullets() {
-        for (let i = 0; i < this.playerBullets.length; i++) {
-            const bullet = this.playerBullets[i];
-            bullet.x -= bullet.speed * Math.sin(bullet.rotation);
-            bullet.y += bullet.speed * Math.cos(bullet.rotation);
-        //   if (bullet.y < 0) {
-        //     this.removeBullet(bullet, i);
-        //   }
-        }  
+        if (this.playerbase.visible)
+            for (let i = 0; i < this.playerBullets.length; i++) {
+                const bullet = this.playerBullets[i];
+                bullet.y += bullet.speed;
+                if (bullet.y < 0) {
+                    this.removeBullet(bullet, i);
+                }
+            }
+        else {
+            for (let i = 0; i < this.playerBullets.length; i++) {
+                const bullet = this.playerBullets[i];
+                bullet.y += bullet.speed;
+                bullet.x += bullet.rotation / (Math.PI / 18) * .5;
+                if (bullet.y < 0) {
+                    this.removeBullet(bullet, i);
+                }
+            }
+        }
 
         for (let i = 0; i < this.enemyBullets.length; i++) {
             const bullet = this.enemyBullets[i];
             bullet.y += bullet.speed;
             if (bullet.y >= GameConstants.screenHeight) {
-              this.removeBullet(bullet, i, false);
+                this.removeBullet(bullet, i, false);
             }
-          }
+        }
     }
     updatebooster(){
         if(this.powerup){
