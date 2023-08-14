@@ -10,11 +10,16 @@ import { StartUI } from "./StartUI";
 export class InGameUI extends Container{
     constructor(){
         super();
+        this.startGame();
+    } 
+    startGame(){
+        Game.gameover=false;
         this.tutorial = new Container();
         this.player = new Container();
         this.playerbase = new Container();
         this.playerupgrade = new Container();
         this.creeps=[];
+        this.lives=3;
         this.enemyBullets=[];
         this.playerBullets=[];
         this.bulletlvlupArray=[];
@@ -43,36 +48,40 @@ export class InGameUI extends Container{
         this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
         this.drawBoss();
-        setInterval(() => {
-            if(!this.isInvincible){
+        this.shootingInterval = setInterval(() => {
+            if (!this.isInvincible && !Game.gameover) {
                 this.startPlayerShooting();
             }
         }, 200);
         Ticker.shared.add(() => {
-            if (!Game.gamestart) {
-                if(!this.isInvincible){
-                    this.checkCollision();
-                }
+            if (!Game.gameover) {
+                
+                this.checkCollision();
+                
                 
                 this.updateBullets(); 
-                this.updatebooster();        
-            }
-            if (this.isInvincible) {
-                Game.app.stage.off("mousemove");
-            }
-            else{
-                if(!this.tutorial.parent){
-                    this.move();
+                this.updatebooster();     
+                if (this.isInvincible) {
+                    Game.app.stage.off("mousemove");
                 }
+                else{
+                    if(!this.tutorial.parent){
+                        this.move();
+                    }
+                }   
             }
+           
         });
         this.startCreepShooting();
-        // 
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
+        this.livesText = new Text(`Remaining lives: ${this.lives}`, { fill: 0xffffff });
+        this.livesText.position.set(10, 10);
+        this.addChild(this.livesText);
         Game.app.stage.on("click", this.onStageClick.bind(this));
-    } 
+        
+    }
     drawPlayerShip(){
         //base
         this.playershipbase= Sprite.from(Texture.from("ship_blue_base"));
@@ -182,9 +191,11 @@ export class InGameUI extends Container{
         return container;
     }
     loopcircle() {
-        setInterval(() => {
-            const circleContainer = this.drawcircle();
-            this.tutorial.addChildAt(circleContainer, 0);
+        this.circleSpawnInterval = setInterval(() => {
+            if (!Game.gameover) {
+                const circleContainer = this.drawcircle();
+                this.tutorial.addChildAt(circleContainer, 0);
+            }
         }, 600);
     }
     drawcircle(){
@@ -330,6 +341,14 @@ export class InGameUI extends Container{
                 const enemyBullet = this.enemyBullets[i];
                 if (CollisionHandler.detectCollision(enemyBullet, this.playershipbase)) { 
                     this.removeBullet(enemyBullet, i, false);
+                    this.lives--;
+                    this.updateLivesText();
+                    if (this.lives <= 0) {
+                        Game.gameover = true;
+                        Game.clickCount=-1;
+                        
+                        Game.lose();
+                    }
                     Game.is_upgrade = false; 
                     this.bulletCount=2;
                     this.playerbase.visible = true;
@@ -350,15 +369,14 @@ export class InGameUI extends Container{
             for (let i = 0; i < this.creeps.length; i++) {
                 const creep = this.creeps[i];
                 if (CollisionHandler.detectCollision(creep, this.playershipbase)) { 
-                    // if(creep.hp<=2){
-                    //     this.removeChild(creep);
-                    //     this.creeps.splice(i, 1);
-                    //     if(Game.sfx_music){
-                    //         sound.play("sfx_enemy_explode",
-                    //             {volume:0.1},
-                    //         );
-                    //     };
-                    // }
+                    this.lives--;
+                    this.updateLivesText();
+                    if (this.lives <= 0) {
+                        Game.gameover = true;
+                        Game.clickCount=-1;
+                        
+                        Game.lose();
+                    }
                     if(Game.sfx_music){
                         sound.play("sfx_explode",
                             {volume:0.1},
@@ -386,6 +404,7 @@ export class InGameUI extends Container{
     }
     onStageClick(e) {
         Game.clickCount++;
+        console.log(Game.clickCount);
         const oldX = e.data.global.x;
         const oldY = e.data.global.y;
         var playerX = this.player.x;
@@ -393,7 +412,9 @@ export class InGameUI extends Container{
         this.dx = oldX - playerX;
         this.dy = oldY - playerY; 
         if (Game.playbutton_clicked&&this.tutorial.parent&&Game.clickCount==2) {
+            this.tutorial.removeChildren();
             this.removeChild(this.tutorial);
+            this.move();
         }
     }
     move(){
@@ -510,7 +531,7 @@ export class InGameUI extends Container{
     }
     startCreepShooting() {
         const creepShootHandler = () => {
-            if (!this.tutorial.parent) {
+            if (!this.tutorial.parent&&!Game.gameover) {
                 if (Math.random() <0.001 && this.boss1.parent) {
                     this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
                 }
@@ -601,6 +622,7 @@ export class InGameUI extends Container{
                 bullet.x = x;
                 bullet.y = y;
                 bullet.speed = -5;
+                console.log(bullet.speed);
                 gsap.fromTo(bullet, { x: bullet.x, y: bullet.y }, { x: x + 20 * i, y: y + Math.abs(25 * i), duration: 0.25 });
                 this.playerBullets.push(bullet)
             }
@@ -621,6 +643,7 @@ export class InGameUI extends Container{
             for (let i = 0; i < this.playerBullets.length; i++) {
                 const bullet = this.playerBullets[i];
                 bullet.y += bullet.speed;
+                // console.log(bullet.speed);
                 if (bullet.y < 0) {
                     this.removeBullet(bullet, i);
                 }
@@ -661,6 +684,9 @@ export class InGameUI extends Container{
           this.enemyBullets.splice(index, 1);
         }
     }
+    updateLivesText() {
+        this.livesText.text = `Remaining lives: ${this.lives}`;
+    }
     secondWaveText(){
         const container = new Container(); 
         var text= Sprite.from(Texture.from("txt_wave2"));
@@ -699,6 +725,39 @@ export class InGameUI extends Container{
         this.addChild(container);
     }
     startSecondWave(){
+
+    }
+    reset(){
+        this.removeChild(this.player);
+        this.creeps.forEach((creep) => this.removeChild(creep));
+        this.creeps = [];
+        this.lives = 3;
+        clearInterval(this.shootingInterval);
+        clearInterval(this.circleSpawnInterval);
+        this.removeChild(this.powerup);
+        this.removeChild(this.livesText);
+        Game.is_upgrade=false;
+        this.bulletCount = 2;
         
+        for (let i = this.playerBullets.length - 1; i >= 0; i--) {
+            const playerBullet = this.playerBullets[i];
+            if (playerBullet) {
+              this.removeBullet(playerBullet, i);
+            }
+          }
+        for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+            const enemyBullet = this.enemyBullets[i];
+            if (enemyBullet) {
+              this.removeBullet(enemyBullet, i, false);
+            }
+        }
+        this.enemyBullets = [];
+        this.bulletlvlupArray.forEach((lvlup) => this.removeChild(lvlup));
+        this.playerBullets = [];
+        this.bulletlvlupArray = [];
+        this.isInvincible = false;
+        // this.addChild(this.tutorial);
+        this.startGame();
+
     }
 }

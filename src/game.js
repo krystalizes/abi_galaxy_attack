@@ -14,7 +14,7 @@ export class Game {
     document.body.appendChild(this.app.view);
     this.music = true;
     this.sfx_music=true;
-    this.gamestart=false;
+    this.gameover=false;
     this.playbutton_clicked=false;
     this.is_upgrade=false;
     this.clickCount=0;
@@ -63,12 +63,22 @@ export class Game {
   }
   static play(){
     this.playbutton_clicked=true;
+    this.clickCount=0;
     this.app.stage.removeChild(this.SceneManager.stUI);
+    // Game.clickCount+=1;
     this.startGame();
   }
   static startGame(){
     this.app.stage.addChild(this.SceneManager.igUI);
-    
+  }
+  static replay(){
+    this.app.stage.removeChild(this.SceneManager.goUI);
+    this.app.stage.removeChild(this.SceneManager.igUI);
+    this.app.stage.addChild(this.SceneManager.igUI);
+    this.SceneManager.igUI.reset();
+  }
+  static lose(){
+    this.app.stage.addChild(this.SceneManager.goUI);
   }
 }
 

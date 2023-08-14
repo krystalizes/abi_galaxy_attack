@@ -19,7 +19,6 @@ export class MusicButton extends Sprite{
             }
             Game.clickCount--;
             Game.music = !Game.music;
-            console.log("Music " + Game.music);
             if(Game.music) {
                 if(sound.find("music_bg")){
                     sound.find("music_bg").volume = 1;        
@@ -35,11 +34,11 @@ export class MusicButton extends Sprite{
             }
         });
         this.bgmusic.on("pointerover", () => {
-            this.bgmusic.scale.set(0.12); // Enlarge the button
+            this.bgmusic.scale.set(0.12); 
           });
       
         this.bgmusic.on("pointerout", () => {
-            this.bgmusic.scale.set(0.1); // Reset the scale back to the original
+            this.bgmusic.scale.set(0.1);
           });
         this.addChild(this.bgmusic);
     }
@@ -62,7 +61,6 @@ export class SFXButton extends Sprite {
         this.sfxButton.eventMode = "static";
         this.sfxButton.on("pointerup", () => {
             Game.sfx_music = !Game.sfx_music;
-            console.log("SFX muted: " + Game.sfx_music);
             if (Game.sfx_music) {
                 this.sfxButton.tint = 0xffffff;
             } else {
@@ -71,11 +69,11 @@ export class SFXButton extends Sprite {
             Game.clickCount--;
         });
         this.sfxButton.on("pointerover", () => {
-            this.sfxButton.scale.set(0.06); // Enlarge the button
+            this.sfxButton.scale.set(0.06);
           });
       
         this.sfxButton.on("pointerout", () => {
-            this.sfxButton.scale.set(0.05); // Reset the scale back to the original
+            this.sfxButton.scale.set(0.05); 
           });
         this.addChild(this.sfxButton);
     }
