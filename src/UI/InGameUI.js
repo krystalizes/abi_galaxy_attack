@@ -49,20 +49,21 @@ export class InGameUI extends Container{
         this.playerupgrade.visible=false;
         this.playerbase.visible=true;
         this.drawPlayerShip();  
-        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
-        this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
-        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
-        this.drawCreep(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
-        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
-        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
-        this.drawCreep(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.45);
-        this.drawCreep(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.45);
-        this.drawCreep(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.45);
-        this.drawCreep(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
-        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
-        this.drawCreep(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
+        this.drawCreep1(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
+        this.drawCreep1(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
+        this.drawCreep1(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
+        this.drawCreep1(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
+        this.drawCreep1(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
+        this.drawCreep1(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
+        this.drawCreep1(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.45);
+        this.drawCreep1(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.45);
+        this.drawCreep1(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.45);
+        this.drawCreep1(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
+        this.drawCreep1(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
+        this.drawCreep1(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
-        this.drawBoss();
+        this.boss2=null;
+        this.drawBoss1();
         this.shootingInterval = setInterval(() => {
             if (!this.isInvincible && !Game.gameover) {
                 this.startPlayerShooting();
@@ -324,7 +325,10 @@ export class InGameUI extends Container{
                     this.removeChild(creep);
                     this.creeps.splice(j, 1);
                     if (this.creeps.length == 0 ) {
-                        this.secondWaveText();
+                        Game.wave++;
+                        if(Game.wave==2){
+                            this.secondWaveText();
+                        }
                     }
                 }
                 this.removeBullet(playerBullet, i);
@@ -442,7 +446,7 @@ export class InGameUI extends Container{
             });
           });
     }
-    drawCreep(x,y){
+    drawCreep1(x,y){
         const creepContainer = new Container();
         this.addChild(creepContainer);
         const creepMain= Sprite.from(Texture.from("spr_robot_noel_main"));
@@ -513,6 +517,55 @@ export class InGameUI extends Container{
                 });
         }
     }
+    drawCreep2(x,y){
+        const creepContainer = new Container();
+        this.addChild(creepContainer);
+        const creepMain= Sprite.from(Texture.from("spr_robot_noel_main"));
+        creepMain.anchor.set(0.5, 0.5);
+        creepMain.scale.set(0.5);
+        creepMain.position.set(x, y);
+        // creepMain.hp=10;
+        creepContainer.addChild(creepMain);
+        creepContainer.hp=10;
+        const creepHead= Sprite.from(Texture.from("spr_robot_noel_2"));
+        creepHead.anchor.set(0.5, 0.5);
+        creepHead.scale.set(0.7);
+        creepHead.position.set(x, y-15);
+        creepContainer.addChild(creepHead);
+        const creepwing=new Container();
+        const creepwingleft= Sprite.from(Texture.from("spr_wing_robot_noel_2_left"));
+        creepwingleft.anchor.set(1,1);
+        creepwingleft.scale.set(0.7);
+        creepwingleft.position.set(creepHead.x-10, creepHead.y);
+        creepwing.addChild(creepwingleft);
+        gsap.to(creepwingleft
+        ,{
+            rotation:-Math.PI/18,
+            duration:0.4,
+            yoyo:true,
+            repeat:-1,
+            repeatDelay:0,
+            ease: "sine.inOut",
+        });
+        const creepwingright= Sprite.from(Texture.from("spr_wing_robot_noel_2_left"));
+        creepwingright.anchor.set(1,1);
+        creepwingright.scale.set(-0.7,0.7);
+        creepwingright.position.set(creepHead.x+10, creepHead.y);
+        creepwing.addChild(creepwingright);
+        gsap.to(creepwingright
+            ,{
+                rotation:Math.PI/18,
+                duration:0.4,
+                yoyo:true,
+                repeat:-1,
+                repeatDelay:0,
+                ease: "sine.inOut",
+            });
+        creepContainer.addChild(creepwing);
+        creepContainer.setChildIndex(creepwing,0);
+        this.creeps.push(creepContainer);
+       
+    }
     startPlayerShooting(){
         if (!this.tutorial.parent) {
             const playerBaseGlobalPosition = this.playerbase.toGlobal(this.playershipbase.position);
@@ -529,6 +582,9 @@ export class InGameUI extends Container{
             if (!this.tutorial.parent&&!Game.gameover) {
                 if (Math.random() <0.001 && this.boss1.parent) {
                     this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
+                }
+                if (Math.random() <0.001 && this.boss2.parent) {
+                    this.bossShoot(this.boss2.x,this.boss2.y+this.boss2.height/2);
                 }
                 for (const creep of this.creeps) {
                     if (Math.random() < 0.001 ) {
@@ -560,7 +616,7 @@ export class InGameUI extends Container{
             return playerupgradebullet;
         }
     }
-    drawBoss(){
+    drawBoss1(){
         const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
         bossImg.anchor.set(0.5, 0.5);
         bossImg.scale.set(0.8);
@@ -581,8 +637,34 @@ export class InGameUI extends Container{
         );
         this.boss1=bossImg;
     }
-    drawBossBullet(){
+    drawBoss2(){
+        const bossImg=Sprite.from(Texture.from("spr_snow_creep"));
+        bossImg.anchor.set(0.5, 0.5);
+        bossImg.scale.set(0.8);
+        bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
+        bossImg.hp=50;
+        this.addChild(bossImg);
+        this.creeps.push(bossImg);
+        gsap.fromTo(
+            bossImg,
+            { y:0 },
+            {
+                y:GameConstants.screenHeight*0.25, 
+                duration: 0.8, 
+                ease: "power1.inOut",
+            }
+        );
+        this.boss2=bossImg;
+    }
+    drawBoss1Bullet(){
         const bossbullet=Sprite.from(Texture.from("spr_candy_bullet"));
+        bossbullet.anchor.set(0.5, 0.5);
+        bossbullet.scale.set(0.8);
+        this.addChildAt(bossbullet,0);
+        return bossbullet;
+    }
+    drawBoss2Bullet(){
+        const bossbullet=Sprite.from(Texture.from("spr_rocket_bullet"));
         bossbullet.anchor.set(0.5, 0.5);
         bossbullet.scale.set(0.8);
         this.addChildAt(bossbullet,0);
@@ -596,11 +678,21 @@ export class InGameUI extends Container{
         return creepbullet;
     }
     bossShoot(x, y) {
-        let bullet = this.drawBossBullet();
-        bullet.x = x;
-        bullet.y = y;
-        bullet.speed = 4;
-        this.enemyBullets.push(bullet);
+        if(this.boss1.parent){
+            let bullet = this.drawBoss1Bullet();
+            bullet.x = x;
+            bullet.y = y;
+            bullet.speed = 4;
+            this.enemyBullets.push(bullet);
+        }
+        else{
+            let bullet = this.drawBoss2Bullet();
+            bullet.x = x;
+            bullet.y = y;
+            bullet.speed = 4;
+            bullet.rotation=Math.PI;
+            this.enemyBullets.push(bullet);
+        }     
     }
     creepShoot(x, y) {
         let bullet = this.drawCreepBullet();
@@ -712,11 +804,25 @@ export class InGameUI extends Container{
                     ease: "power1.inOut",
                 });
         }, 1500 );
-        this.startSecondWave();
+        setTimeout(() => {
+            this.startSecondWave();
+        }, 1000 );
         this.addChild(container);
     }
     startSecondWave(){
-
+        this.drawBoss2();
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
     }
     reset(){
         this.removeChild(this.player);

@@ -18,6 +18,7 @@ export class Game {
     this.playbutton_clicked=false;
     this.is_upgrade=false;
     this.clickCount=0;
+    this.wave=1;
     this.app.stage.eventMode="static";
     this.processBar();
     this.loadGame().then(() => {
