@@ -316,6 +316,9 @@ export class InGameUI extends Container{
                     }
                     this.removeChild(creep);
                     this.creeps.splice(j, 1);
+                    if (this.creeps.length == 0 ) {
+                        this.secondWaveText();
+                    }
                 }
                 this.removeBullet(playerBullet, i);
                 break;
@@ -328,6 +331,7 @@ export class InGameUI extends Container{
                 if (CollisionHandler.detectCollision(enemyBullet, this.playershipbase)) { 
                     this.removeBullet(enemyBullet, i, false);
                     Game.is_upgrade = false; 
+                    this.bulletCount=2;
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -346,21 +350,22 @@ export class InGameUI extends Container{
             for (let i = 0; i < this.creeps.length; i++) {
                 const creep = this.creeps[i];
                 if (CollisionHandler.detectCollision(creep, this.playershipbase)) { 
-                    if(creep.hp<=2){
-                        this.removeChild(creep);
-                        this.creeps.splice(i, 1);
-                        if(Game.sfx_music){
-                            sound.play("sfx_enemy_explode",
-                                {volume:0.1},
-                            );
-                        };
-                    }
+                    // if(creep.hp<=2){
+                    //     this.removeChild(creep);
+                    //     this.creeps.splice(i, 1);
+                    //     if(Game.sfx_music){
+                    //         sound.play("sfx_enemy_explode",
+                    //             {volume:0.1},
+                    //         );
+                    //     };
+                    // }
                     if(Game.sfx_music){
                         sound.play("sfx_explode",
                             {volume:0.1},
                         );
                     };
                     Game.is_upgrade = false; 
+                    this.bulletCount=2;
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -655,5 +660,45 @@ export class InGameUI extends Container{
         } else {
           this.enemyBullets.splice(index, 1);
         }
-      }
+    }
+    secondWaveText(){
+        const container = new Container(); 
+        var text= Sprite.from(Texture.from("txt_wave2"));
+        text.anchor.set(0.5, 0.5);
+        text.scale.set(1);
+        text.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.5);
+        container.addChild(text);
+        var glow= Sprite.from(Texture.from("spr_rect_glow"));
+        glow.anchor.set(0.5, 0.5);
+        glow.scale.set(1);
+        glow.position.set(GameConstants.screenWidth*0.4, GameConstants.screenHeight*0.525);
+        container.addChild(glow);
+        gsap.fromTo(container,
+            {
+                x:-GameConstants.screenWidth*0.5,
+            },
+            {
+                x:0,
+                duration:1,
+                repeat:0,
+                ease: "power1.inOut",
+            });
+        setTimeout(() => {
+            gsap.fromTo(container,
+                {
+                    x: 0,
+                },
+                {
+                    x: GameConstants.screenWidth * 0.7,
+                    duration: 1,
+                    repeat: 0,
+                    ease: "power1.inOut",
+                });
+        }, 1500 );
+        this.startSecondWave();
+        this.addChild(container);
+    }
+    startSecondWave(){
+        
+    }
 }
