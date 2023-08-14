@@ -11,6 +11,21 @@ export class InGameUI extends Container{
     constructor(){
         super();
         this.startGame();
+        Ticker.shared.add(() => {
+            if (!Game.gameover) {
+                this.checkCollision();
+                this.updateBullets(); 
+                this.updatebooster();     
+                if (this.isInvincible) {
+                    Game.app.stage.off("mousemove");
+                }
+                else{
+                    if(!this.tutorial.parent){
+                        this.move();
+                    }
+                }   
+            }
+        });
     } 
     startGame(){
         Game.gameover=false;
@@ -53,25 +68,6 @@ export class InGameUI extends Container{
                 this.startPlayerShooting();
             }
         }, 200);
-        Ticker.shared.add(() => {
-            if (!Game.gameover) {
-                
-                this.checkCollision();
-                
-                
-                this.updateBullets(); 
-                this.updatebooster();     
-                if (this.isInvincible) {
-                    Game.app.stage.off("mousemove");
-                }
-                else{
-                    if(!this.tutorial.parent){
-                        this.move();
-                    }
-                }   
-            }
-           
-        });
         this.startCreepShooting();
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
@@ -404,7 +400,6 @@ export class InGameUI extends Container{
     }
     onStageClick(e) {
         Game.clickCount++;
-        console.log(Game.clickCount);
         const oldX = e.data.global.x;
         const oldY = e.data.global.y;
         var playerX = this.player.x;
@@ -551,7 +546,7 @@ export class InGameUI extends Container{
             playerbasebullet.anchor.set(0.5, 0.5);
             playerbasebullet.scale.set(0.8);
             playerbasebullet.dmg=2;
-            // playerbasebullet.speed=-10;
+            playerbasebullet.speed=-5;
             this.addChildAt(playerbasebullet,0);
             return playerbasebullet;
         }
@@ -560,7 +555,7 @@ export class InGameUI extends Container{
             playerupgradebullet.anchor.set(0.5, 0.5);
             playerupgradebullet.scale.set(0.8);
             playerupgradebullet.dmg=4;
-            // playerupgradebullet.speed=-10;
+            playerupgradebullet.speed=-5;
             this.addChildAt(playerupgradebullet,0);
             return playerupgradebullet;
         }
@@ -621,8 +616,6 @@ export class InGameUI extends Container{
                 let bullet = this.drawPlayerBullet();
                 bullet.x = x;
                 bullet.y = y;
-                bullet.speed = -5;
-                console.log(bullet.speed);
                 gsap.fromTo(bullet, { x: bullet.x, y: bullet.y }, { x: x + 20 * i, y: y + Math.abs(25 * i), duration: 0.25 });
                 this.playerBullets.push(bullet)
             }
@@ -632,7 +625,6 @@ export class InGameUI extends Container{
                 let bullet = this.drawPlayerBullet();
                 bullet.x = x + 25 * i;
                 bullet.y = y + Math.abs(20 * i);
-                bullet.speed = -5;
                 bullet.rotation = 10 * (Math.PI / 180) * i;
                 this.playerBullets.push(bullet);
             }
@@ -643,7 +635,6 @@ export class InGameUI extends Container{
             for (let i = 0; i < this.playerBullets.length; i++) {
                 const bullet = this.playerBullets[i];
                 bullet.y += bullet.speed;
-                // console.log(bullet.speed);
                 if (bullet.y < 0) {
                     this.removeBullet(bullet, i);
                 }
@@ -756,7 +747,6 @@ export class InGameUI extends Container{
         this.playerBullets = [];
         this.bulletlvlupArray = [];
         this.isInvincible = false;
-        // this.addChild(this.tutorial);
         this.startGame();
 
     }

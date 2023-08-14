@@ -35,7 +35,6 @@ export class GameOverUI extends Container {
         playAgainButton.eventMode = "static";
         playAgainButton.on("pointerdown", () => {
           Game.replay();
-          console.log(Game.clickCount);
         });
         gameOverScreen.addChild(playAgainButton);
         this.addChild(gameOverScreen);

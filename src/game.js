@@ -65,7 +65,6 @@ export class Game {
     this.playbutton_clicked=true;
     this.clickCount=0;
     this.app.stage.removeChild(this.SceneManager.stUI);
-    // Game.clickCount+=1;
     this.startGame();
   }
   static startGame(){
