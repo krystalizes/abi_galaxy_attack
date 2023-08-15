@@ -4,9 +4,7 @@ import { gsap } from "gsap";
 import { GameConstants } from "../GameConstants/GameConstants";
 import { Game } from "../game";
 import { sound } from "@pixi/sound";
-import { MusicButton, SFXButton } from "./MusicButton";
 import { CollisionHandler } from "../Collision/CollisonHandler";
-import { StartUI } from "./StartUI";
 export class InGameUI extends Container{
     constructor(){
         super();
@@ -26,6 +24,7 @@ export class InGameUI extends Container{
                 }   
             }
         });
+       
     } 
     startGame(){
         Game.gameover=false;
@@ -328,6 +327,8 @@ export class InGameUI extends Container{
                         Game.wave++;
                         if(Game.wave==2){
                             this.secondWaveText();
+                        }else{
+                            this.thirdWaveText();
                         }
                     }
                 }
@@ -374,7 +375,6 @@ export class InGameUI extends Container{
                     if (this.lives <= 0) {
                         Game.gameover = true;
                         Game.clickCount=-1;
-                        
                         Game.lose();
                     }
                     if(Game.sfx_music){
@@ -563,7 +563,7 @@ export class InGameUI extends Container{
         creepContainer.addChild(creepwing);
         creepContainer.setChildIndex(creepwing,0);
         this.creeps.push(creepContainer);
-       
+        
     }
     startPlayerShooting(){
         if (!this.tutorial.parent) {
@@ -601,7 +601,7 @@ export class InGameUI extends Container{
             playerbasebullet.anchor.set(0.5, 0.5);
             playerbasebullet.scale.set(0.8);
             playerbasebullet.dmg=2;
-            playerbasebullet.speed=-5;
+            playerbasebullet.speed=-7;
             this.addChildAt(playerbasebullet,0);
             return playerbasebullet;
         }
@@ -610,7 +610,7 @@ export class InGameUI extends Container{
             playerupgradebullet.anchor.set(0.5, 0.5);
             playerupgradebullet.scale.set(0.8);
             playerupgradebullet.dmg=4;
-            playerupgradebullet.speed=-5;
+            playerupgradebullet.speed=-7;
             this.addChildAt(playerupgradebullet,0);
             return playerupgradebullet;
         }
@@ -707,7 +707,7 @@ export class InGameUI extends Container{
                 let bullet = this.drawPlayerBullet();
                 bullet.x = x;
                 bullet.y = y;
-                gsap.fromTo(bullet, { x: bullet.x, y: bullet.y }, { x: x + 20 * i, y: y + Math.abs(25 * i), duration: 0.25 });
+                gsap.fromTo(bullet, { x: bullet.x, y: bullet.y }, { x: x + 25 * i, y: y + Math.abs(25 * i), duration: 0.25 });
                 this.playerBullets.push(bullet)
             }
         }
@@ -808,6 +808,45 @@ export class InGameUI extends Container{
         }, 1000 );
         this.addChild(container);
     }
+    thirdWaveText(){
+        const container = new Container(); 
+        var text= Sprite.from(Texture.from("txt_wave3"));
+        text.anchor.set(0.5, 0.5);
+        text.scale.set(1);
+        text.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.5);
+        container.addChild(text);
+        var glow= Sprite.from(Texture.from("spr_rect_glow"));
+        glow.anchor.set(0.5, 0.5);
+        glow.scale.set(1);
+        glow.position.set(GameConstants.screenWidth*0.4, GameConstants.screenHeight*0.525);
+        container.addChild(glow);
+        gsap.fromTo(container,
+            {
+                x:-GameConstants.screenWidth*0.5,
+            },
+            {
+                x:0,
+                duration:1,
+                repeat:0,
+                ease: "power1.inOut",
+            });
+        setTimeout(() => {
+            gsap.fromTo(container,
+                {
+                    x: 0,
+                },
+                {
+                    x: GameConstants.screenWidth * 0.7,
+                    duration: 1,
+                    repeat: 0,
+                    ease: "power1.inOut",
+                });
+        }, 1500 );
+        setTimeout(() => {
+            this.startThirdWave();
+        }, 1000 );
+        this.addChild(container);
+    }
     startSecondWave(){
         this.drawBoss2();
         this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
@@ -816,12 +855,41 @@ export class InGameUI extends Container{
         this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
-        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.45);
-        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.45);
-        this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.45);
-        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.45);
-        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.45);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
+        for (let i = 0; i < this.creeps.length; i++) {
+            var container = this.creeps[i];
+            console.log(container);
+            gsap.timeline()
+            .to(container,
+            {
+                x:container.x+500,
+                duration: 1,
+                repeat: 0,
+                ease: "power1.inOut",
+            })
+            .to(container,
+            {
+                x:container.x-500,
+                duration: 1,
+                repeat: 0,
+                ease: "power1.inOut",
+            })
+            .to(container,
+            {
+                x:container.x,
+                duration: 1,
+                repeat: 0,
+                ease: "power1.inOut",
+            })
+        }
+    }
+    startThirdWave(){
+
     }
     reset(){
         this.removeChild(this.player);
