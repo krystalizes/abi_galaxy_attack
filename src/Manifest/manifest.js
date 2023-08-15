@@ -55,6 +55,12 @@ export const manifest = {
             }
         },
         {
+            name : "pause",
+            assets : {
+                pause : "assets/atlases/jpg/pause.png",
+            }
+        },
+        {
             name : "booster_levelup",
             assets : {
                 booster_levelup : "assets/atlases/png8/booster_levelup.png",

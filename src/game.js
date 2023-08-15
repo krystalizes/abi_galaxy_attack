@@ -77,6 +77,12 @@ export class Game {
     this.app.stage.addChild(this.SceneManager.igUI);
     this.SceneManager.igUI.reset();
   }
+  static pause(){
+    this.app.stage.addChild(this.SceneManager.pUI);
+  }
+  static resume(){
+    this.app.stage.removeChild(this.SceneManager.pUI);
+  }
   static lose(){
     this.app.stage.addChild(this.SceneManager.goUI);
   }

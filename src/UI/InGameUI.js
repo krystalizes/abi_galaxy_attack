@@ -413,6 +413,7 @@ export class InGameUI extends Container{
         if (Game.playbutton_clicked&&this.tutorial.parent&&Game.clickCount==2) {
             this.tutorial.removeChildren();
             this.removeChild(this.tutorial);
+            this.drawPauseButton();
             this.move();
         }
     }
@@ -453,9 +454,8 @@ export class InGameUI extends Container{
         creepMain.anchor.set(0.5, 0.5);
         creepMain.scale.set(0.5);
         creepMain.position.set(x, y);
-        // creepMain.hp=10;
         creepContainer.addChild(creepMain);
-        creepContainer.hp=10;
+        creepContainer.hp=20;
         const creepHead= Sprite.from(Texture.from("spr_robot_noel_3"));
         creepHead.anchor.set(0.5, 0.5);
         creepHead.scale.set(0.5);
@@ -524,9 +524,8 @@ export class InGameUI extends Container{
         creepMain.anchor.set(0.5, 0.5);
         creepMain.scale.set(0.5);
         creepMain.position.set(x, y);
-        // creepMain.hp=10;
         creepContainer.addChild(creepMain);
-        creepContainer.hp=10;
+        creepContainer.hp=40;
         const creepHead= Sprite.from(Texture.from("spr_robot_noel_2"));
         creepHead.anchor.set(0.5, 0.5);
         creepHead.scale.set(0.7);
@@ -642,7 +641,7 @@ export class InGameUI extends Container{
         bossImg.anchor.set(0.5, 0.5);
         bossImg.scale.set(0.8);
         bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
-        bossImg.hp=50;
+        bossImg.hp=100;
         this.addChild(bossImg);
         this.creeps.push(bossImg);
         gsap.fromTo(
@@ -833,6 +832,7 @@ export class InGameUI extends Container{
         clearInterval(this.circleSpawnInterval);
         this.removeChild(this.powerup);
         this.removeChild(this.livesText);
+        this.removeChild(this.pausebtn);
         Game.is_upgrade=false;
         this.bulletCount = 2;
         
@@ -855,5 +855,19 @@ export class InGameUI extends Container{
         this.isInvincible = false;
         this.startGame();
 
+    }
+    drawPauseButton(){
+        this.pausebtn= Sprite.from(Texture.from("pause"));
+        this.pausebtn.anchor.set(0.5, 0.5);
+        this.pausebtn.scale.set(1);
+        this.pausebtn.position.set(GameConstants.screenWidth*0.97,GameConstants.screenHeight*0.05);
+        this.pausebtn.eventMode="static";
+        this.pausebtn.on("pointerdown", () => 
+        {
+            Game.gameover=true;
+            Game.app.stage.off("mousemove");
+            Game.pause();
+        });
+        this.addChild(this.pausebtn);
     }
 }
