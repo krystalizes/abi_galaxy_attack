@@ -1,4 +1,4 @@
-import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite,Graphics } from "pixi.js";
+import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite,Graphics, Point } from "pixi.js";
 import { Sprite } from "pixi.js";
 import { gsap } from "gsap";
 import { GameConstants } from "../GameConstants/GameConstants";
@@ -314,7 +314,7 @@ export class InGameUI extends Container{
               if (CollisionHandler.detectCollision(playerBullet, creep)) {
                 creep.hp-=playerBullet.dmg;
                 if(creep.hp<=0){
-                    if (creep === this.boss1) {
+                    if (creep === this.boss1||creep === this.boss2) {
                         if (Game.sfx_music) {
                             sound.play("sfx_explosion", { volume: 0.1 });
                         }
@@ -641,23 +641,33 @@ export class InGameUI extends Container{
     }
     startCreepShooting() {
         const creepShootHandler = () => {
-            if (!this.tutorial.parent&&!Game.gameover) {
-                if (Math.random() <0.001 && this.boss1) {
-                    this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
+            if (!this.tutorial.parent && !Game.gameover) {
+                if (Math.random() < 0.001 && this.boss1) {
+                    this.bossShoot(this.boss1.x, this.boss1.y + this.boss1.height / 2);
                 }
-                if (Math.random() <0.001 && this.boss2) {
-                    this.bossShoot(this.boss2.x,this.boss2.y+this.boss2.height/2);
+                if (Math.random() < 0.001 && this.boss2) {
+                    this.bossShoot(this.boss2.x, this.boss2.y + this.boss2.height / 2);
                 }
                 for (const creep of this.creeps) {
-                    if (Math.random() < 0.001 ) {
+                    if (Math.random() < 0.001) {
                         const creepMain = creep.getChildAt(1);
-                        this.creepShoot(creepMain.x, creepMain.y + creepMain.height / 2);
+                        var creepMainGlobalPosition = creepMain.toGlobal(new Point(creepMain.x, creepMain.y + creepMain.height / 2));
+                        // if (Game.wave == 3) {
+                            
+                        //     console.log(creepMainGlobalPosition.x, creepMainGlobalPosition.y);
+                        //     this.creepShoot(creepMainGlobalPosition.x, creepMainGlobalPosition.y );
+                        // }
+                        // else{
+                            this.creepShoot(creepMain.x, creepMain.y + creepMain.height / 2);
+                        // }
+                        
                     }
                 }
             }
         };
         Ticker.shared.add(creepShootHandler);
     }
+    
     drawPlayerBullet(){
         if(this.playerbase.visible){
             const playerbasebullet=Sprite.from(Texture.from("bullet_blue"));
@@ -747,7 +757,7 @@ export class InGameUI extends Container{
             bullet.speed = 4;
             this.enemyBullets.push(bullet);
         }
-        else{
+        else if(this.boss2.parent){
             let bullet = this.drawBoss2Bullet();
             bullet.x = x;
             bullet.y = y;
@@ -1012,6 +1022,7 @@ export class InGameUI extends Container{
         this.creeps = [];
         this.lives = 3;
         this.point=0;
+        Game.wave=1;
         clearInterval(this.shootingInterval);
         clearInterval(this.circleSpawnInterval);
         this.removeChild(this.powerup);
