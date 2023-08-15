@@ -361,7 +361,9 @@ export class InGameUI extends Container{
                         Game.lose();
                     }
                     Game.is_upgrade = false; 
-                    this.bulletCount--;
+                    if(this.bulletCount>2){
+                        this.bulletCount--;
+                    }
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -393,7 +395,9 @@ export class InGameUI extends Container{
                         );
                     };
                     Game.is_upgrade = false; 
-                    this.bulletCount--;
+                    if(this.bulletCount>2){
+                        this.bulletCount--;
+                    }
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -922,23 +926,31 @@ export class InGameUI extends Container{
     }
     startSecondWave(){
         this.drawBoss2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.25);
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
-        this.drawCreep2(GameConstants.screenWidth*0.65,GameConstants.screenHeight*0.15);
-        this.drawCreep2(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.15);
-        this.drawCreep2(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.25);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
+        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.4);
-        this.drawCreep2(GameConstants.screenWidth*0.35,GameConstants.screenHeight*0.4);
-        this.drawCreep2(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.4);
-        this.drawCreep2(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.25);
+        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         for (let i = 1; i < 7; i++) {
             var container = this.creeps[i];
-            gsap.to(container,
+            gsap.timeline()
+            .to(container,
             {
-                x:container.x-185,  
+                x:container.x+185,  
+                duration: 1,
+                repeat: 0,
+                ease: "power1.inOut",
+            })
+            .to(container,
+            {
+                x:container.x,  
                 duration: 1,
                 repeat: 0,
                 ease: "power1.inOut",
@@ -946,9 +958,17 @@ export class InGameUI extends Container{
         }
         for (let i = 7; i < this.creeps.length; i++) {
             var container = this.creeps[i];
-            gsap.to(container,
+            gsap.timeline()
+            .to(container,
             {
-                x:container.x+185,  
+                x:container.x-185,  
+                duration: 1,
+                repeat: 0,
+                ease: "power1.inOut",
+            })
+            .to(container,
+            {
+                x:container.x,  
                 duration: 1,
                 repeat: 0,
                 ease: "power1.inOut",
