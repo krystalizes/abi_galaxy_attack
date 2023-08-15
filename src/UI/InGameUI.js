@@ -37,7 +37,6 @@ export class InGameUI extends Container{
         this.playerupgrade = new Container();
         this.creeps=[];
         this.lives=3;
-        this.point=0;
         this.enemyBullets=[];
         this.playerBullets=[];
         this.bulletlvlupArray=[];
@@ -66,7 +65,7 @@ export class InGameUI extends Container{
         this.drawCreep1(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
         this.boss1=null;
         this.boss2=null;
-        this.drawBoss1();
+        this.drawBoss1(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.25);
         this.shootingInterval = setInterval(() => {
             if (!this.isInvincible && !Game.gameover) {
                 this.startPlayerShooting();
@@ -76,7 +75,7 @@ export class InGameUI extends Container{
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
-        this.pointText = new Text(`Points: ${this.point}`, { fill: 0xffffff });
+        this.pointText = new Text(`Points: ${Game.point}`, { fill: 0xffffff });
         this.pointText.position.set(10, 10);
         this.addChild(this.pointText);
         this.livesText = new Text(`Remaining lives: ${this.lives}`, { fill: 0xffffff });
@@ -318,14 +317,14 @@ export class InGameUI extends Container{
                         if (Game.sfx_music) {
                             sound.play("sfx_explosion", { volume: 0.1 });
                         }
-                        this.point+=5;
+                        Game.point+=5;
                         this.updatePointText();
                         this.drawPowerup(creep.x,creep.y);
                     } else {
                         if (Game.sfx_music) {
                             sound.play("sfx_enemy_explode", { volume: 0.1 });
                         }
-                        this.point+=1;
+                        Game.point+=1;
                         this.updatePointText();
                         if(Math.random() > 0.75){
                             const creepmain=creep.getChildAt(1);
@@ -362,7 +361,7 @@ export class InGameUI extends Container{
                         Game.lose();
                     }
                     Game.is_upgrade = false; 
-                    this.bulletCount=2;
+                    this.bulletCount--;
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -394,7 +393,7 @@ export class InGameUI extends Container{
                         );
                     };
                     Game.is_upgrade = false; 
-                    this.bulletCount=2;
+                    this.bulletCount--;
                     this.playerbase.visible = true;
                     this.playerupgrade.visible = false;
                     gsap.to(this.player, {
@@ -674,11 +673,11 @@ export class InGameUI extends Container{
             return playerupgradebullet;
         }
     }
-    drawBoss1(){
+    drawBoss1(x,y){
         const bossImg=Sprite.from(Texture.from("spr_ginger_boy"));
         bossImg.anchor.set(0.5, 0.5);
         bossImg.scale.set(0.8);
-        bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
+        bossImg.position.set(x, y);
         bossImg.hp=50;
         this.addChild(bossImg);
         this.creeps.push(bossImg);
@@ -695,11 +694,11 @@ export class InGameUI extends Container{
         );
         this.boss1=bossImg;
     }
-    drawBoss2(){
+    drawBoss2(x,y){
         const bossImg=Sprite.from(Texture.from("spr_snow_creep"));
         bossImg.anchor.set(0.5, 0.5);
         bossImg.scale.set(0.8);
-        bossImg.position.set(GameConstants.screenWidth*0.5, GameConstants.screenHeight*0.25);
+        bossImg.position.set(x, y);
         bossImg.hp=100;
         this.addChild(bossImg);
         this.creeps.push(bossImg);
@@ -841,7 +840,7 @@ export class InGameUI extends Container{
         this.livesText.text = `Remaining lives: ${this.lives}`;
     }
     updatePointText() {
-        this.pointText.text = `Points: ${this.point}`;
+        this.pointText.text = `Points: ${Game.point}`;
     }
     secondWaveText(){
         const container = new Container(); 
@@ -922,7 +921,7 @@ export class InGameUI extends Container{
         this.addChild(container);
     }
     startSecondWave(){
-        this.drawBoss2();
+        this.drawBoss2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.25);
         this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
@@ -960,12 +959,12 @@ export class InGameUI extends Container{
     startThirdWave(){
         this.spawnInterval = setInterval(() => {
             let spawnCount = 2;
-            if (this.point > 50 && this.point <= 100) {
+            if (Game.point > 50 && Game.point <= 100) {
               spawnCount = 3;
-            } else if (this.pointCount > 100) {
+            } else if (Game.point > 100) {
               spawnCount = 4;
             }
-            if (this.point!=0 && this.point % 50 == 0) {
+            if (Game.point!=0 && Game.point % 50 == 0) {
                 if(Math.random()<=0.5){
                     this.drawBoss1();
                 }else{
@@ -991,7 +990,7 @@ export class InGameUI extends Container{
         this.creeps.forEach((creep) => this.removeChild(creep));
         this.creeps = [];
         this.lives = 3;
-        this.point=0;
+        Game.point=0;
         clearInterval(this.shootingInterval);
         clearInterval(this.circleSpawnInterval);
         this.removeChild(this.powerup);
@@ -999,6 +998,7 @@ export class InGameUI extends Container{
         this.removeChild(this.pointText);
         this.removeChild(this.pausebtn);
         Game.is_upgrade=false;
+        clearInterval(this.spawnInterval);
         this.bulletCount = 2;
         
         for (let i = this.playerBullets.length - 1; i >= 0; i--) {

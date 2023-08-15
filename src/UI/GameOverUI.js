@@ -23,6 +23,14 @@ export class GameOverUI extends Container {
         gameOverText.position.set(GameConstants.screenWidth / 2, GameConstants.screenHeight / 2 - 50);
         gameOverScreen.addChild(gameOverText);
 
+        const pointText = new Text(`Total Points: ${Game.point}`, new TextStyle({
+          fill: 0xffffff,
+          fontSize: 24,
+        }));
+        pointText.anchor.set(0.5);
+        pointText.position.set(GameConstants.screenWidth / 2, GameConstants.screenHeight / 2 + 10);
+        gameOverScreen.addChild(pointText);
+
         const playAgainButton = new Text("Play Again", new TextStyle({
           fill: 0xffffff,
           fontSize: 24,
