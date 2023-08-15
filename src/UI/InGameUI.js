@@ -13,7 +13,10 @@ export class InGameUI extends Container{
             if (!Game.gameover) {
                 this.checkCollision();
                 this.updateBullets(); 
-                this.updatebooster();     
+                this.updatebooster();   
+                if(Game.wave==3){
+                    this.updateCreep3();
+                }  
                 if (this.isInvincible) {
                     Game.app.stage.off("mousemove");
                 }
@@ -250,7 +253,7 @@ export class InGameUI extends Container{
     }
     checkCollision(){
         if(this.powerup){
-            if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)&&Game.is_upgrade==false){
+            if(CollisionHandler.detectCollision(this.powerup,this.playershipbase)){
                 Game.is_upgrade=true;
                 this.playerupgrade.visible=true;
                 this.playerbase.visible=false;
@@ -573,6 +576,54 @@ export class InGameUI extends Container{
         this.creeps.push(creepContainer);
         
     }
+    drawCreep3(x,y){
+        const creepContainer = new Container();
+        this.addChild(creepContainer);
+        const creepMain= Sprite.from(Texture.from("spr_elf"));
+        creepMain.anchor.set(0.5, 0.5);
+        creepMain.scale.set(1);
+        creepMain.position.set(x, y);
+        creepContainer.addChild(creepMain);
+        creepContainer.hp=40;
+        const creepwing=new Container();
+        const creepwingleft= Sprite.from(Texture.from("spr_elf_ear_left"));
+        creepwingleft.anchor.set(1,1);
+        creepwingleft.scale.set(0.7);
+        creepwingleft.position.set(creepMain.x-20, creepMain.y);
+        creepwing.addChild(creepwingleft);
+        setInterval(() => {
+            gsap.to(creepwingleft
+                ,{
+                    rotation:-Math.PI/18,
+                    duration:0.1,
+                    yoyo:true,
+                    repeat:3,
+                    repeatDelay:0,
+                    ease: "sine.inOut",
+                });
+        }, 1000);
+        const creepwingright= Sprite.from(Texture.from("spr_elf_ear_left"));
+        creepwingright.anchor.set(1,1);
+        creepwingright.scale.set(-0.7,0.7);
+        creepwingright.position.set(creepMain.x+20, creepMain.y);
+        creepwing.addChild(creepwingright);
+        setInterval(() => {
+            gsap.to(creepwingright
+                ,{
+                    rotation:Math.PI/18,
+                    duration:0.1,
+                    yoyo:true,
+                    repeat:3,
+                    repeatDelay:0,
+                    ease: "sine.inOut",
+                });
+        }, 1000);
+       
+        creepContainer.addChild(creepwing);
+        creepContainer.setChildIndex(creepwing,0);
+        this.creeps.push(creepContainer);
+        
+    }
     startPlayerShooting(){
         if (!this.tutorial.parent) {
             const playerBaseGlobalPosition = this.playerbase.toGlobal(this.playershipbase.position);
@@ -766,6 +817,18 @@ export class InGameUI extends Container{
             lvlup.y += 2;
         }
     }
+    updateCreep3(){
+        const speed=2;
+        for (let i = 0; i < this.creeps.length; i++) {
+            const creep = this.creeps[i];
+            creep.y += speed;
+        
+            if (creep.y > GameConstants.screenHeight + creep.height / 2) {
+            this.removeChild(creep);
+              this.creeps.splice(i, 1);
+            }
+        }
+    }
     removeBullet(bullet, index, isPlayerBullet = true) {
         this.removeChild(bullet);
         if (isPlayerBullet) {
@@ -895,8 +958,34 @@ export class InGameUI extends Container{
         }
     }
     startThirdWave(){
-
+        this.spawnInterval = setInterval(() => {
+            let spawnCount = 2;
+            if (this.point > 50 && this.point <= 100) {
+              spawnCount = 3;
+            } else if (this.pointCount > 100) {
+              spawnCount = 4;
+            }
+            if (this.point!=0 && this.point % 50 == 0) {
+                if(Math.random()<=0.5){
+                    this.drawBoss1();
+                }else{
+                    this.drawBoss2();
+                }
+                
+            //   clearInterval(this.spawnInterval); 
+             
+            }
+            this.spawnEnemyShips(spawnCount);
+          }, 1000);
     }
+    spawnEnemyShips(count) {
+        if (Game.gameover) {
+          return; 
+        }
+        for (let i = 0; i < count; i++) {
+          this.drawCreep3(Math.random() * GameConstants.screenWidth,30);
+        }
+      }
     reset(){
         this.removeChild(this.player);
         this.creeps.forEach((creep) => this.removeChild(creep));
