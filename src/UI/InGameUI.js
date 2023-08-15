@@ -34,6 +34,7 @@ export class InGameUI extends Container{
         this.playerupgrade = new Container();
         this.creeps=[];
         this.lives=3;
+        this.point=0;
         this.enemyBullets=[];
         this.playerBullets=[];
         this.bulletlvlupArray=[];
@@ -72,8 +73,11 @@ export class InGameUI extends Container{
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
+        this.pointText = new Text(`Points: ${this.point}`, { fill: 0xffffff });
+        this.pointText.position.set(10, 10);
+        this.addChild(this.pointText);
         this.livesText = new Text(`Remaining lives: ${this.lives}`, { fill: 0xffffff });
-        this.livesText.position.set(10, 10);
+        this.livesText.position.set(10, 40);
         this.addChild(this.livesText);
         Game.app.stage.on("click", this.onStageClick.bind(this));
         
@@ -311,11 +315,15 @@ export class InGameUI extends Container{
                         if (Game.sfx_music) {
                             sound.play("sfx_explosion", { volume: 0.1 });
                         }
+                        this.point+=5;
+                        this.updatePointText();
                         this.drawPowerup(creep.x,creep.y);
                     } else {
                         if (Game.sfx_music) {
                             sound.play("sfx_enemy_explode", { volume: 0.1 });
                         }
+                        this.point+=1;
+                        this.updatePointText();
                         if(Math.random() > 0.75){
                             const creepmain=creep.getChildAt(1);
                             this.drawBulletLvlup(creepmain.x,creepmain.y);
@@ -769,6 +777,9 @@ export class InGameUI extends Container{
     updateLivesText() {
         this.livesText.text = `Remaining lives: ${this.lives}`;
     }
+    updatePointText() {
+        this.pointText.text = `Points: ${this.point}`;
+    }
     secondWaveText(){
         const container = new Container(); 
         var text= Sprite.from(Texture.from("txt_wave2"));
@@ -849,43 +860,38 @@ export class InGameUI extends Container{
     }
     startSecondWave(){
         this.drawBoss2();
-        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.15);
-        this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.15);
         this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.15);
-        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.25);
-        this.drawCreep2(GameConstants.screenWidth*0.6,GameConstants.screenHeight*0.4);
-        this.drawCreep2(GameConstants.screenWidth*0.55,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.65,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.15);
+        this.drawCreep2(GameConstants.screenWidth*0.7,GameConstants.screenHeight*0.25);
         this.drawCreep2(GameConstants.screenWidth*0.5,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.45,GameConstants.screenHeight*0.4);
         this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.4);
-        this.drawCreep2(GameConstants.screenWidth*0.4,GameConstants.screenHeight*0.25);
-        for (let i = 0; i < this.creeps.length; i++) {
+        this.drawCreep2(GameConstants.screenWidth*0.35,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.4);
+        this.drawCreep2(GameConstants.screenWidth*0.3,GameConstants.screenHeight*0.25);
+        for (let i = 1; i < 7; i++) {
             var container = this.creeps[i];
-            console.log(container);
-            gsap.timeline()
-            .to(container,
+            gsap.to(container,
             {
-                x:container.x+500,
+                x:container.x-185,  
                 duration: 1,
                 repeat: 0,
                 ease: "power1.inOut",
             })
-            .to(container,
+        }
+        for (let i = 7; i < this.creeps.length; i++) {
+            var container = this.creeps[i];
+            gsap.to(container,
             {
-                x:container.x-500,
+                x:container.x+185,  
                 duration: 1,
                 repeat: 0,
                 ease: "power1.inOut",
             })
-            .to(container,
-            {
-                x:container.x,
-                duration: 1,
-                repeat: 0,
-                ease: "power1.inOut",
-            })
+           
         }
     }
     startThirdWave(){
@@ -896,10 +902,12 @@ export class InGameUI extends Container{
         this.creeps.forEach((creep) => this.removeChild(creep));
         this.creeps = [];
         this.lives = 3;
+        this.point=0;
         clearInterval(this.shootingInterval);
         clearInterval(this.circleSpawnInterval);
         this.removeChild(this.powerup);
         this.removeChild(this.livesText);
+        this.removeChild(this.pointText);
         this.removeChild(this.pausebtn);
         Game.is_upgrade=false;
         this.bulletCount = 2;
