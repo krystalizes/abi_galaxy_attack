@@ -2,13 +2,13 @@ import { Container, Sprite, Text, TextStyle, Texture, Graphics } from "pixi.js";
 import { GameConstants } from "../GameConstants/GameConstants";
 import { Game } from "../game";
 import { sound } from "@pixi/sound";
+import {SceneManager} from '../Scene/SceneManager'
 
 export class GameOverUI extends Container {
     constructor() {
         super();
-        this.showGameOverScreen();
     }
-    showGameOverScreen() {
+    showGameOverScreen(point) {
         const gameOverScreen = new Graphics();
         gameOverScreen.beginFill(0x000000, 0.5);
         gameOverScreen.drawRect(0, 0, GameConstants.screenWidth, GameConstants.screenHeight);
@@ -23,7 +23,7 @@ export class GameOverUI extends Container {
         gameOverText.position.set(GameConstants.screenWidth / 2, GameConstants.screenHeight / 2 - 50);
         gameOverScreen.addChild(gameOverText);
 
-        const pointText = new Text(`Total Points: ${Game.point}`, new TextStyle({
+        const pointText = new Text(`Total Points: ${point}`, new TextStyle({
           fill: 0xffffff,
           fontSize: 24,
         }));

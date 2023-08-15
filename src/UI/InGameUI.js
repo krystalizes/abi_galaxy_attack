@@ -37,6 +37,7 @@ export class InGameUI extends Container{
         this.playerupgrade = new Container();
         this.creeps=[];
         this.lives=3;
+        this.point=0;
         this.enemyBullets=[];
         this.playerBullets=[];
         this.bulletlvlupArray=[];
@@ -75,7 +76,7 @@ export class InGameUI extends Container{
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
-        this.pointText = new Text(`Points: ${Game.point}`, { fill: 0xffffff });
+        this.pointText = new Text(`Points: ${this.point}`, { fill: 0xffffff });
         this.pointText.position.set(10, 10);
         this.addChild(this.pointText);
         this.livesText = new Text(`Remaining lives: ${this.lives}`, { fill: 0xffffff });
@@ -317,14 +318,14 @@ export class InGameUI extends Container{
                         if (Game.sfx_music) {
                             sound.play("sfx_explosion", { volume: 0.1 });
                         }
-                        Game.point+=5;
+                        this.point+=5;
                         this.updatePointText();
                         this.drawPowerup(creep.x,creep.y);
                     } else {
                         if (Game.sfx_music) {
                             sound.play("sfx_enemy_explode", { volume: 0.1 });
                         }
-                        Game.point+=1;
+                        this.point+=1;
                         this.updatePointText();
                         if(Math.random() > 0.75){
                             const creepmain=creep.getChildAt(1);
@@ -358,7 +359,7 @@ export class InGameUI extends Container{
                         Game.gameover = true;
                         Game.clickCount=-1;
                         
-                        Game.lose();
+                        Game.lose(this.point);
                     }
                     Game.is_upgrade = false; 
                     if(this.bulletCount>2){
@@ -387,7 +388,7 @@ export class InGameUI extends Container{
                     if (this.lives <= 0) {
                         Game.gameover = true;
                         Game.clickCount=-1;
-                        Game.lose();
+                        Game.lose(this.point);
                     }
                     if(Game.sfx_music){
                         sound.play("sfx_explode",
@@ -641,10 +642,10 @@ export class InGameUI extends Container{
     startCreepShooting() {
         const creepShootHandler = () => {
             if (!this.tutorial.parent&&!Game.gameover) {
-                if (Math.random() <0.001 && this.boss1.parent) {
+                if (Math.random() <0.001 && this.boss1) {
                     this.bossShoot(this.boss1.x,this.boss1.y+this.boss1.height/2);
                 }
-                if (Math.random() <0.001 && this.boss2.parent) {
+                if (Math.random() <0.001 && this.boss2) {
                     this.bossShoot(this.boss2.x,this.boss2.y+this.boss2.height/2);
                 }
                 for (const creep of this.creeps) {
@@ -844,7 +845,7 @@ export class InGameUI extends Container{
         this.livesText.text = `Remaining lives: ${this.lives}`;
     }
     updatePointText() {
-        this.pointText.text = `Points: ${Game.point}`;
+        this.pointText.text = `Points: ${this.point}`;
     }
     secondWaveText(){
         const container = new Container(); 
@@ -979,16 +980,16 @@ export class InGameUI extends Container{
     startThirdWave(){
         this.spawnInterval = setInterval(() => {
             let spawnCount = 2;
-            if (Game.point > 50 && Game.point <= 100) {
+            if (this.point > 50 && this.point <= 100) {
               spawnCount = 3;
-            } else if (Game.point > 100) {
+            } else if (this.point > 100) {
               spawnCount = 4;
             }
-            if (Game.point!=0 && Game.point % 50 == 0) {
+            if (this.point!=0 && this.point % 50 == 0) {
                 if(Math.random()<=0.5){
-                    this.drawBoss1();
+                    this.drawBoss1(Math.random() * GameConstants.screenWidth,30);
                 }else{
-                    this.drawBoss2();
+                    this.drawBoss2(Math.random() * GameConstants.screenWidth,30);
                 }
                 
             //   clearInterval(this.spawnInterval); 
@@ -1010,7 +1011,7 @@ export class InGameUI extends Container{
         this.creeps.forEach((creep) => this.removeChild(creep));
         this.creeps = [];
         this.lives = 3;
-        Game.point=0;
+        this.point=0;
         clearInterval(this.shootingInterval);
         clearInterval(this.circleSpawnInterval);
         this.removeChild(this.powerup);

@@ -19,7 +19,6 @@ export class Game {
     this.is_upgrade=false;
     this.clickCount=0;
     this.wave=1;
-    this.point=0;
     this.app.stage.eventMode="static";
     this.processBar();
     this.loadGame().then(() => {
@@ -84,8 +83,9 @@ export class Game {
   static resume(){
     this.app.stage.removeChild(this.SceneManager.pUI);
   }
-  static lose(){
+  static lose(x){
     this.app.stage.addChild(this.SceneManager.goUI);
+    this.SceneManager.goUI.showGameOverScreen(x);
   }
 }
 
