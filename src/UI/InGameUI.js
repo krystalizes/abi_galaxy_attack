@@ -14,6 +14,8 @@ export class InGameUI extends Container{
                 this.checkCollision();
                 this.updateBullets(); 
                 this.updatebooster();   
+                this.startCreepShooting();
+
                 if(Game.wave==3){
                     this.updateCreep3();
                 }  
@@ -72,7 +74,7 @@ export class InGameUI extends Container{
                 this.startPlayerShooting();
             }
         }, 200);
-        this.startCreepShooting();
+        
         this.loopcircle();
         this.tutorial.addChild(this.drawtext());
         this.tutorial.addChild(this.drawhand());
@@ -631,6 +633,7 @@ export class InGameUI extends Container{
     startPlayerShooting(){
         if (!this.tutorial.parent) {
             const playerBaseGlobalPosition = this.playerbase.toGlobal(this.playershipbase.position);
+            // console.log(playerBaseGlobalPosition);
             this.playerShoot(playerBaseGlobalPosition.x,playerBaseGlobalPosition.y-this.playershipbase.height/2);
             if(Game.sfx_music){
                 sound.play("sfx_shoot",
@@ -640,7 +643,6 @@ export class InGameUI extends Container{
         }
     }
     startCreepShooting() {
-        const creepShootHandler = () => {
             if (!this.tutorial.parent && !Game.gameover) {
                 if (Math.random() < 0.001 && this.boss1) {
                     this.bossShoot(this.boss1.x, this.boss1.y + this.boss1.height / 2);
@@ -651,21 +653,11 @@ export class InGameUI extends Container{
                 for (const creep of this.creeps) {
                     if (Math.random() < 0.001) {
                         const creepMain = creep.getChildAt(1);
-                        var creepMainGlobalPosition = creepMain.toGlobal(new Point(creepMain.x, creepMain.y + creepMain.height / 2));
-                        // if (Game.wave == 3) {
-                            
-                        //     console.log(creepMainGlobalPosition.x, creepMainGlobalPosition.y);
-                        //     this.creepShoot(creepMainGlobalPosition.x, creepMainGlobalPosition.y );
-                        // }
-                        // else{
-                            this.creepShoot(creepMain.x, creepMain.y + creepMain.height / 2);
-                        // }
-                        
+                        const creepMainGlobalPosition = creep.toGlobal(creepMain.position);     
+                        this.creepShoot(creepMainGlobalPosition.x, creepMainGlobalPosition.y+creepMain.height/2);
                     }
                 }
             }
-        };
-        Ticker.shared.add(creepShootHandler);
     }
     
     drawPlayerBullet(){
@@ -813,7 +805,6 @@ export class InGameUI extends Container{
                 }
             }
         }
-
         for (let i = 0; i < this.enemyBullets.length; i++) {
             const bullet = this.enemyBullets[i];
             bullet.y += bullet.speed;
@@ -1001,12 +992,13 @@ export class InGameUI extends Container{
                 }else{
                     this.drawBoss2(Math.random() * GameConstants.screenWidth,30);
                 }
+                this.point++;
                 
             //   clearInterval(this.spawnInterval); 
              
             }
             this.spawnEnemyShips(spawnCount);
-          }, 1000);
+          }, 2000);
     }
     spawnEnemyShips(count) {
         if (Game.gameover) {
