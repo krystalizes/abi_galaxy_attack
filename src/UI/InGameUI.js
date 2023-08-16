@@ -644,17 +644,19 @@ export class InGameUI extends Container{
     }
     startCreepShooting() {
             if (!this.tutorial.parent && !Game.gameover) {
-                if (Math.random() < 0.001 && this.boss1) {
-                    this.bossShoot(this.boss1.x, this.boss1.y + this.boss1.height / 2);
-                }
-                if (Math.random() < 0.001 && this.boss2) {
-                    this.bossShoot(this.boss2.x, this.boss2.y + this.boss2.height / 2);
-                }
                 for (const creep of this.creeps) {
                     if (Math.random() < 0.001) {
-                        const creepMain = creep.getChildAt(1);
-                        const creepMainGlobalPosition = creep.toGlobal(creepMain.position);     
-                        this.creepShoot(creepMainGlobalPosition.x, creepMainGlobalPosition.y+creepMain.height/2);
+                        if (creep==this.boss1) {
+                            this.bossShoot(this.boss1.x, this.boss1.y + this.boss1.height / 2);
+                        }else if(creep==this.boss2){
+                            this.bossShoot(this.boss2.x, this.boss2.y + this.boss2.height / 2);
+                        }
+                        else{
+                            const creepMain = creep.getChildAt(1);
+                            const creepMainGlobalPosition = creep.toGlobal(creepMain.position);     
+                            this.creepShoot(creepMainGlobalPosition.x, creepMainGlobalPosition.y+creepMain.height/2);
+                        }
+                        
                     }
                 }
             }
