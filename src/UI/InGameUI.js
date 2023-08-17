@@ -321,6 +321,7 @@ export class InGameUI extends Container{
                 };
                     
                 this.removeChild(this.powerup);
+                this.powerup=null;
             }
         }
 
