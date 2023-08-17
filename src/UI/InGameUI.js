@@ -373,7 +373,7 @@ export class InGameUI extends Container{
                         }
                         this.point+=1;
                         this.updatePointText();
-                        if(Math.random() > 0.75){
+                        if(Math.random() > 0.85){
                             const creepmain=creep.getChildAt(1);
                             this.drawBulletLvlup(creepmain.x,creepmain.y);
                         }
