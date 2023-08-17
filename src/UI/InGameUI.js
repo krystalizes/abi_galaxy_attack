@@ -1030,8 +1030,11 @@ export class InGameUI extends Container{
             let spawnCount = 2;
             if (this.point > 50 && this.point <= 100) {
               spawnCount = 3;
-            } else if (this.point > 100) {
+            } else if (this.point > 100 && this.point<=200) {
               spawnCount = 4;
+            }
+            else if (this.point>200){
+                spawnCount = 5;
             }
             if (this.point!=0 && this.point % 50 == 0) {
                 if(Math.random()<=0.5){
@@ -1039,7 +1042,7 @@ export class InGameUI extends Container{
                 }else{
                     this.drawBoss2(Math.random() * GameConstants.screenWidth,30);
                 }
-                this.point++;
+                this.point+0.5;
                 
             //   clearInterval(this.spawnInterval); 
              
