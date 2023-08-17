@@ -101,7 +101,7 @@ export class InGameUI extends Container{
             explosion.rotation = Math.random() * Math.PI;
             explosion.scale.set(z + Math.random() * 0.2);
             explosion.loop = false;
-            explosion.gotoAndPlay(Math.random() * 26 | 0);
+            explosion.gotoAndPlay(0 | 0);
             this.addChild(explosion);
             explosion.onComplete = () => {
                 this.removeChild(explosion);
