@@ -408,6 +408,11 @@ export class InGameUI extends Container{
                         
                         Game.lose(this.point);
                     }
+                    if(Game.sfx_music){
+                        sound.play("sfx_explode",
+                            {volume:0.1},
+                        );
+                    };
                     Game.is_upgrade = false; 
                     if(this.bulletCount>2){
                         this.bulletCount--;
