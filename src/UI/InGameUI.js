@@ -1033,7 +1033,7 @@ export class InGameUI extends Container{
                 }else{
                     this.drawBoss2(Math.random() * GameConstants.screenWidth,30);
                 }
-                this.point+0.5;
+                this.point+1;
                 
             //   clearInterval(this.spawnInterval); 
              
