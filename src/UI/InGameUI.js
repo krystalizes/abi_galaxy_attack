@@ -1,4 +1,4 @@
-import { Container, MASK_TYPES, Text, TextStyle, Texture,Ticker,TilingSprite,Graphics, Point } from "pixi.js";
+import { Container, Assets, Text, TextStyle, Texture,Ticker,TilingSprite,Graphics, Point,AnimatedSprite } from "pixi.js";
 import { Sprite } from "pixi.js";
 import { gsap } from "gsap";
 import { GameConstants } from "../GameConstants/GameConstants";
@@ -86,6 +86,49 @@ export class InGameUI extends Container{
         this.addChild(this.livesText);
         Game.app.stage.on("click", this.onStageClick.bind(this));
         
+    }
+    // createAnim(x, y) {
+    //     const animhit = Texture.from('anim_hit');
+    //     const list = [];
+    //     for (let i = 0; i < 4; i++) {
+    //         for (let j = 0; j < 4; j++) {
+    //             const frameText = new Texture(animhit, new Rectangle(i * 128, j * 128, 128, 128));
+    //             list.push(frameText);
+    //         }
+    //     }
+    //     const explosion = new AnimatedSprite(list);
+    //     explosion.x = x;
+    //     explosion.y = y;
+    //     explosion.anchor.set(0.5);
+    //     explosion.rotation = Math.random() * Math.PI;
+    //     explosion.loop = false;
+    //     explosion.gotoAndPlay(Math.random() * 26 | 0);
+    //     Game.app.stage.addChild(explosion);
+    //     explosion.onComplete = () => {
+    //         Game.app.stage.removeChild(explosion);
+    //     }
+    // }
+    testAnim(x, y) {
+        Assets.load('assets/jsons/mc.json').then(() => {
+            const explosionTextures = [];
+            for (let i = 0; i < 26; i++) {
+                const texture = Texture.from(`Explosion_Sequence_A ${i + 1}.png`);
+                explosionTextures.push(texture);
+            }
+
+            const explosion = new AnimatedSprite(explosionTextures);
+            explosion.x = x;
+            explosion.y = y;
+            explosion.anchor.set(0.5);
+            explosion.rotation = Math.random() * Math.PI;
+            explosion.scale.set(0.5 + Math.random() * 0.5);
+            explosion.loop = false;
+            explosion.gotoAndPlay(Math.random() * 26 | 0);
+            this.addChild(explosion);
+            explosion.onComplete = () => {
+                this.removeChild(explosion);
+            }
+        })
     }
     drawPlayerShip(){
         //base
@@ -346,6 +389,7 @@ export class InGameUI extends Container{
                     }
                 }
                 this.removeBullet(playerBullet, i);
+                this.testAnim(playerBullet.x, playerBullet.y);
                 break;
               }
             }
@@ -1000,7 +1044,7 @@ export class InGameUI extends Container{
              
             }
             this.spawnEnemyShips(spawnCount);
-          }, 2000);
+          }, 1000);
     }
     spawnEnemyShips(count) {
         if (Game.gameover) {
