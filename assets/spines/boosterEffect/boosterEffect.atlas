@@ -1,0 +1,13 @@
+
+boosterEffect.png
+size: 133,133
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+images/Buff_Effect
+  rotate: false
+  xy: 2, 2
+  size: 129, 129
+  orig: 129, 129
+  offset: 0, 0
+  index: -1
