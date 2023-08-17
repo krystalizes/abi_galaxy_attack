@@ -402,17 +402,18 @@ export class InGameUI extends Container{
                     this.removeBullet(enemyBullet, i, false);
                     this.lives--;
                     this.updateLivesText();
+                    if(Game.sfx_music){
+                        sound.play("sfx_explode",
+                            {volume:0.1},
+                        );
+                    };
                     if (this.lives <= 0) {
                         Game.gameover = true;
                         Game.clickCount=-1;
                         
                         Game.lose(this.point);
                     }
-                    if(Game.sfx_music){
-                        sound.play("sfx_explode",
-                            {volume:0.1},
-                        );
-                    };
+                    
                     Game.is_upgrade = false; 
                     if(this.bulletCount>2){
                         this.bulletCount--;
@@ -437,16 +438,17 @@ export class InGameUI extends Container{
                 if (CollisionHandler.detectCollision(creep, this.playershipbase)) { 
                     this.lives--;
                     this.updateLivesText();
-                    if (this.lives <= 0) {
-                        Game.gameover = true;
-                        Game.clickCount=-1;
-                        Game.lose(this.point);
-                    }
                     if(Game.sfx_music){
                         sound.play("sfx_explode",
                             {volume:0.1},
                         );
                     };
+                    if (this.lives <= 0) {
+                        Game.gameover = true;
+                        Game.clickCount=-1;
+                        Game.lose(this.point);
+                    }
+                    
                     Game.is_upgrade = false; 
                     if(this.bulletCount>2){
                         this.bulletCount--;
