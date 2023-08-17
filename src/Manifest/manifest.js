@@ -354,12 +354,12 @@ export const manifest = {
                 pathMove : "assets/jsons/pathMove.json",
             }
         },
-        // {
-        //     name : "mc",
-        //     assets : {
-        //         mc : "assets/jsons/mc.json",
-        //     }
-        // },
+        {
+            name : "mc",
+            assets : {
+                mc : "assets/atlases/png8/mc.json",
+            }
+        },
         {
             name : "firework",
             assets : {

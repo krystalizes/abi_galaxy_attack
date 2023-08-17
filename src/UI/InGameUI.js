@@ -87,41 +87,19 @@ export class InGameUI extends Container{
         Game.app.stage.on("click", this.onStageClick.bind(this));
         
     }
-    // createAnim(x, y) {
-    //     const animhit = Texture.from('anim_hit');
-    //     const list = [];
-    //     for (let i = 0; i < 4; i++) {
-    //         for (let j = 0; j < 4; j++) {
-    //             const frameText = new Texture(animhit, new Rectangle(i * 128, j * 128, 128, 128));
-    //             list.push(frameText);
-    //         }
-    //     }
-    //     const explosion = new AnimatedSprite(list);
-    //     explosion.x = x;
-    //     explosion.y = y;
-    //     explosion.anchor.set(0.5);
-    //     explosion.rotation = Math.random() * Math.PI;
-    //     explosion.loop = false;
-    //     explosion.gotoAndPlay(Math.random() * 26 | 0);
-    //     Game.app.stage.addChild(explosion);
-    //     explosion.onComplete = () => {
-    //         Game.app.stage.removeChild(explosion);
-    //     }
-    // }
-    testAnim(x, y) {
-        Assets.load('assets/jsons/mc.json').then(() => {
+    createAnim(x, y, z) {
+        Assets.load('mc').then(() => {
             const explosionTextures = [];
             for (let i = 0; i < 26; i++) {
                 const texture = Texture.from(`Explosion_Sequence_A ${i + 1}.png`);
                 explosionTextures.push(texture);
             }
-
             const explosion = new AnimatedSprite(explosionTextures);
             explosion.x = x;
             explosion.y = y;
             explosion.anchor.set(0.5);
             explosion.rotation = Math.random() * Math.PI;
-            explosion.scale.set(0.5 + Math.random() * 0.5);
+            explosion.scale.set(z + Math.random() * 0.2);
             explosion.loop = false;
             explosion.gotoAndPlay(Math.random() * 26 | 0);
             this.addChild(explosion);
@@ -367,6 +345,7 @@ export class InGameUI extends Container{
                         this.point+=5;
                         this.updatePointText();
                         this.drawPowerup(creep.x,creep.y);
+                        this.createAnim(playerBullet.x, playerBullet.y, 0.7);
                     } else {
                         if (Game.sfx_music) {
                             sound.play("sfx_enemy_explode", { volume: 0.1 });
@@ -377,6 +356,7 @@ export class InGameUI extends Container{
                             const creepmain=creep.getChildAt(1);
                             this.drawBulletLvlup(creepmain.x,creepmain.y);
                         }
+                        this.createAnim(playerBullet.x, playerBullet.y, 0.7);
                     }
                     this.removeChild(creep);
                     this.creeps.splice(j, 1);
@@ -390,7 +370,6 @@ export class InGameUI extends Container{
                     }
                 }
                 this.removeBullet(playerBullet, i);
-                this.testAnim(playerBullet.x, playerBullet.y);
                 break;
               }
             }
