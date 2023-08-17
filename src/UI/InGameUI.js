@@ -810,6 +810,11 @@ export class InGameUI extends Container{
         bullet.x = x;
         bullet.y = y;
         bullet.speed = 4;
+        if (this.point > 50 && this.point <= 100) {
+            bullet.speed = 6;
+        } else if (this.point > 100) {
+            bullet.speed = 8;
+        }
         this.enemyBullets.push(bullet);
     }
     playerShoot(x, y) {
